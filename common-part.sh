@@ -1,6 +1,6 @@
 #!/bin/sh
 
-apt-get -q -y --no-install-recommends install binfmt-support qemu-user-static qemu-efi-arm qemu-efi-aarch64 mmdebstrap
+apt-get -q -y --no-install-recommends install binfmt-support qemu-user-static qemu-efi-arm qemu-efi-aarch64 mmdebstrap qemu-system-arm
 
 umount -qf ${LOOPDEV}p1
 umount -qf ${LOOPDEV}p2
@@ -71,14 +71,14 @@ chroot ${MOUNTPT} dpkg-reconfigure tzdata
 chroot ${MOUNTPT} dpkg-reconfigure keyboard-configuration
 chroot ${MOUNTPT} passwd root
 #chroot ${MOUNTPT} pam-auth-update
-#set +x
+set +x
 
 mount --bind /dev ${MOUNTPT}/dev
 mount --bind /sys ${MOUNTPT}/sys
 mount --bind /proc ${MOUNTPT}/proc
 
 chroot ${MOUNTPT} apt-get -y update
-chroot ${MOUNTPT} apt-get -y --install-recommends --no-show-progress install ${GRUBPKG}
+chroot ${MOUNTPT} apt-get -y --no-install-recommends --no-show-progress install ${GRUBPKG}
 sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT=.*$/GRUB_CMDLINE_LINUX_DEFAULT="'"${KERNEL_CMDLINE}"\"/ ${MOUNTPT}/etc/default/grub
 sed -i 's/^GRUB_TIMEOUT=.*$/GRUB_TIMEOUT='"${GRUB_TIMEOUT}"/ ${MOUNTPT}/etc/default/grub
 #cat ${MOUNTPT}/etc/default/grub
@@ -143,7 +143,7 @@ if [ $NETWORK = network-manager -o $NETWORK = systemd-networkd ]; then
   chroot ${MOUNTPT} apt-get -y --purge --autoremove purge ifupdown
   rm -f ${MOUNTPT}/etc/network/interfaces
 fi  
-#set +x
+set +x
 
 cat >>${MOUNTPT}/root/.profile <<EOF
 echo "$NETCONFIG"
