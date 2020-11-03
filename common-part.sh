@@ -1,7 +1,6 @@
 #!/bin/sh
 
-apt-get -q -y --no-install-recommends install binfmt-support qemu-user-static qemu-efi-arm qemu-efi-aarch64 mmdebstrap qemu-system-arm
-
+MOUNTPT=/tmp/mnt$$
 umount -qf ${LOOPDEV}p1
 umount -qf ${LOOPDEV}p2
 losetup -d ${LOOPDEV}
