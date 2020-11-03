@@ -138,7 +138,7 @@ set -x
 if [ "$SUITE" != buster -a "$SUITE" != beowulf ]; then
   chroot ${MOUNTPT} apt-get -y --purge --autoremove purge python2.7-minimal
 fi
-if [ $NETWORK = network-manager -a $NETWORK = systemd-networkd ]; then
+if [ $NETWORK = network-manager -o $NETWORK = systemd-networkd ]; then
   chroot ${MOUNTPT} apt-get -y --purge --autoremove purge ifupdown
   rm -f ${MOUNTPT}/etc/network/interfaces
 fi  
