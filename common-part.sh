@@ -135,7 +135,7 @@ EOF
 fi
 
 set -x
-if [ "$SUITE" != buster -o "$SUITE" != beowulf ]; then
+if [ "$SUITE" != buster -a "$SUITE" != beowulf ]; then
   chroot ${MOUNTPT} apt-get -y --purge --autoremove purge python2.7-minimal
 fi
 if [ $NETWORK = network-manager -o $NETWORK = systemd-networkd ]; then
