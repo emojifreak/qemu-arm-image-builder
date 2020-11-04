@@ -168,78 +168,101 @@ umount -f ${MOUNTPT}
 rm -rf ${MOUNTPT}
 losetup -d ${LOOPDEV}
 
-# Identify the command for starting the guest
+HOSTARCH=`dpkg --print-architecture`
 
+# Identify the command for starting the guest
+  
 if [ $ARCH = arm64 ]; then
-    OVMFCODE=/usr/share/AAVMF/AAVMF_CODE.fd
-    OVMFDATA=/usr/share/AAVMF/AAVMF_VARS.fd
+  OVMFCODE=/usr/share/AAVMF/AAVMF_CODE.fd
+  OVMFDATA=/usr/share/AAVMF/AAVMF_VARS.fd
 elif [ $ARCH = armhf -o $ARCH = armel ]; then 
-    OVMFCODE=/usr/share/AAVMF/AAVMF32_CODE.fd
-    OVMFDATA=/usr/share/AAVMF/AAVMF32_VARS.fd
+  OVMFCODE=/usr/share/AAVMF/AAVMF32_CODE.fd
+  OVMFDATA=/usr/share/AAVMF/AAVMF32_VARS.fd
 elif [ $ARCH = amd64 ]; then 
-    OVMFCODE=/usr/share/OVMF/OVMF_CODE.fd
-    OVMFDATA=/usr/share/OVMF/OVMF_VARS.fd
+  OVMFCODE=/usr/share/OVMF/OVMF_CODE.fd
+  OVMFDATA=/usr/share/OVMF/OVMF_VARS.fd
 elif [ $ARCH = i386 ]; then 
   echo "Warning: UEFI roms for i386 is not yet available in Debian."
+  OVMFCODE=/usr/share/OVMF/OVMF32_CODE.fd
+  OVMFDATA=/usr/share/OVMF/OVMF32_VARS.fd
 else
   echo "Unknown architecture and I don't know a suitable UEFI rom..."
 fi
 
-HOSTARCH=`dpkg --print-architecture`
-if [ $HOSTARCH = arm64 ]; then
+if [ $ARCH = arm64 -o  $ARCH = armhf -o  $ARCH = armel ]; then
+  MACHINE=virt
+  if [ $HOSTARCH = arm64 ]; then
     QEMU=qemu-system-aarch64
     KVM='-enable-kvm'
     if [ $ARCH = arm64 ]; then
-	CPU=host
+      CPU=host
     else
-	CPU=host,aarch64=off
+      CPU=host,aarch64=off
     fi
-elif [ $HOSTARCH = armhf ]; then
+  elif [ $HOSTARCH = armhf ]; then
     if [ $ARCH = arm64 ]; then
-	QEMU=qemu-system-aarch64
-	CPU=max
-	KVM=
+      QEMU=qemu-system-aarch64
+      CPU=max
+      KVM=
     else
-	QEMU=qemu-system-arm
-	CPU=host
-	if [ -e /dev/kvm ]; then
-	    KVM=-enable-kvm
-	else
-	    KVM=
-	fi
-    fi
-elif [ $HOSTARCH = armel ]; then
-    if [ $ARCH = arm64 ]; then
-	QEMU=qemu-system-aarch64
-	CPU=max
+      QEMU=qemu-system-arm
+      CPU=host
+      if [ -e /dev/kvm ]; then
+	KVM=-enable-kvm
+      else
 	KVM=
+      fi
+    fi
+  elif [ $HOSTARCH = armel ]; then
+    if [ $ARCH = arm64 ]; then
+      QEMU=qemu-system-aarch64
+      CPU=max
+      KVM=
     elif [ $ARCH = armhf ]; then
-	QEMU=qemu-system-arm
-	CPU=max
-	KVM=
+      QEMU=qemu-system-arm
+      CPU=max
+      KVM=
     else
-	QEMU=qemu-system-arm
-	CPU=host
-	KVM=
+      QEMU=qemu-system-arm
+      CPU=host
+      KVM=
     fi
-else
+  else
     KVM=
     CPU=max
     if [ $ARCH = arm64 ]; then
-	QEMU=qemu-system-aarch64
+      QEMU=qemu-system-aarch64
     else
-	QEMU=qemu-system-arm
+      QEMU=qemu-system-arm
     fi
-fi
+  fi
 
-if [ $ARCH = arm64 -o $ARCH = armhf -o $ARCH = armel ]; then 
-  cat <<EOF
+elif [ $ARCH = amd64 ]; then
+  QEMU=qemu-system-x86_64
+  MACHINE=q35
+  CPU="x86 max"
+  if [ $HOSTARCH = amd64 -a  -e /dev/kvm ]; then
+    KVM=-enable-kvm
+  else
+    KVM=
+  fi
+elif [ $ARCH = i386 ]; then
+  MACHINE=q35
+  QEMU=qemu-system-i386
+  CPU="x86 max"
+  KVM=
+  if [ -e /dev/kvm ]; then
+    if [ $HOSTARCH = amd64 -o  $HOSTARCH = i386 ]; then
+    KVM=-enable-kvm
+    fi
+  fi
+fi
+cat <<EOF
 
 
 To start the guest run the following commands:
 cp $OVMFDATA /tmp/efivars.fd
-$QEMU -machine virt -nographic -net nic,model=virtio -net user -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0,id=rng-device0 -drive file=${IMGFILE},if=virtio,index=0,format=raw -drive if=pflash,format=raw,read-only,file=${OVMFCODE} -drive if=pflash,format=raw,file=/tmp/efivars.fd -m 1024 -cpu $CPU $KVM
+$QEMU -nographic -net nic,model=virtio -net user -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0,id=rng-device0 -drive file=${IMGFILE},if=virtio,index=0,format=raw -drive if=pflash,format=raw,read-only,file=${OVMFCODE} -drive if=pflash,format=raw,file=/tmp/efivars.fd -m 1024 -machine $MACHINE -cpu "$CPU" $KVM
 EOF
-fi
 
 exit 0
