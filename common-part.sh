@@ -240,7 +240,7 @@ if [ $ARCH = arm64 -o  $ARCH = armhf -o  $ARCH = armel ]; then
 elif [ $ARCH = amd64 ]; then
   QEMU=qemu-system-x86_64
   MACHINE=q35
-  CPU="x86 max"
+  CPU="max"
   if [ $HOSTARCH = amd64 -a  -e /dev/kvm ]; then
     KVM=-enable-kvm
   else
@@ -249,7 +249,7 @@ elif [ $ARCH = amd64 ]; then
 elif [ $ARCH = i386 ]; then
   MACHINE=q35
   QEMU=qemu-system-i386
-  CPU="x86 max"
+  CPU="max"
   KVM=
   if [ -e /dev/kvm ]; then
     if [ $HOSTARCH = amd64 -o  $HOSTARCH = i386 ]; then
@@ -262,7 +262,7 @@ cat <<EOF
 
 To start the guest run the following commands:
 cp $OVMFDATA /tmp/efivars.fd
-$QEMU -nographic -net nic,model=virtio -net user -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0,id=rng-device0 -drive file=${IMGFILE},if=virtio,index=0,format=raw -drive if=pflash,format=raw,read-only,file=${OVMFCODE} -drive if=pflash,format=raw,file=/tmp/efivars.fd -m 1024 -machine $MACHINE -cpu "$CPU" $KVM
+$QEMU -nographic -net nic,model=virtio -net user -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0,id=rng-device0 -drive file=${IMGFILE},if=virtio,index=0,format=raw -drive if=pflash,format=raw,read-only,file=${OVMFCODE} -drive if=pflash,format=raw,file=/tmp/efivars.fd -m 1024 -machine $MACHINE -cpu $CPU $KVM
 EOF
 
 exit 0
