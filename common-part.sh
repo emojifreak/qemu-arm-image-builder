@@ -36,18 +36,22 @@ fi
 if [ "${ARCH}" = arm64 ]; then
     KERNELPKG=linux-image-arm64
     GRUBPKG=grub-efi-arm64
+    # for secure boot GRUBPKG="grub-efi-arm64 grub-efi-arm64-signed  shim-signed"
     GRUBTARGET=arm64-efi
 elif [ "${ARCH}" = armhf -o  "${ARCH}" = armel ]; then
     KERNELPKG=linux-image-armmp-lpae:armhf
     GRUBPKG=grub-efi-arm
+    # secure boot is currently unsupported
     GRUBTARGET=arm-efi
 elif [ "${ARCH}" = amd64 ]; then
     KERNELPKG=linux-image-amd64
     GRUBPKG=grub-efi-amd64
+    # for secure boot GRUBPKG="grub-efi-amd64 grub-efi-amd64-signed shim-signed"
     GRUBTARGET=x86_64-efi
 elif [ "${ARCH}" = i386 ]; then
     KERNELPKG=linux-image-686-pae
     GRUBPKG=grub-efi-ia32
+    # for secure boot GRUBPKG="grub-efi-ia32 grub-efi-ia32-signed shim-signed"
     GRUBTARGET=i386-efi
 else
   echo "Unknown supported architecture ${ARCH} !"
@@ -190,6 +194,7 @@ else
 fi
 
 if [ $ARCH = arm64 -o  $ARCH = armhf -o  $ARCH = armel ]; then
+  GRAPHICS=-nographic
   MACHINE=virt
   if [ $HOSTARCH = arm64 ]; then
     QEMU=qemu-system-aarch64
@@ -240,6 +245,7 @@ if [ $ARCH = arm64 -o  $ARCH = armhf -o  $ARCH = armel ]; then
 elif [ $ARCH = amd64 ]; then
   QEMU=qemu-system-x86_64
   MACHINE=q35
+  GRAPHICS=
   CPU="max"
   if [ $HOSTARCH = amd64 -a  -e /dev/kvm ]; then
     KVM=-enable-kvm
@@ -249,6 +255,7 @@ elif [ $ARCH = amd64 ]; then
 elif [ $ARCH = i386 ]; then
   MACHINE=q35
   QEMU=qemu-system-i386
+  GRAPHICS=
   CPU="max"
   KVM=
   if [ -e /dev/kvm ]; then
@@ -262,7 +269,7 @@ cat <<EOF
 
 To start the guest run the following commands:
 cp $OVMFDATA /tmp/efivars.fd
-$QEMU -nographic -net nic,model=virtio -net user -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0,id=rng-device0 -drive file=${IMGFILE},if=virtio,index=0,format=raw -drive if=pflash,format=raw,read-only,file=${OVMFCODE} -drive if=pflash,format=raw,file=/tmp/efivars.fd -m 1024 -machine $MACHINE -cpu $CPU $KVM
+$QEMU $GRAPHICS -net nic,model=virtio -net user -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0,id=rng-device0 -drive file=${IMGFILE},if=virtio,index=0,format=raw -drive if=pflash,format=raw,read-only,file=${OVMFCODE} -drive if=pflash,format=raw,file=/tmp/efivars.fd -m 1024 -machine $MACHINE -cpu $CPU $KVM
 EOF
 
 exit 0
