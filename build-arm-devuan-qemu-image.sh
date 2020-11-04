@@ -1,7 +1,7 @@
 #!/bin/sh
 
 SUITE=beowulf # or chimaera or ceres
-ARCH=arm64 # or armhf or armel
+ARCH=arm64 # or armhf or armel or amd64 or i386
 IMGFILE=/var/tmp/devuan-${SUITE}-${ARCH}.img
 LOOPDEV=`losetup -f`
 GIGABYTES=10 # total size in GB

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 SUITE=buster # or bullseye sid
-ARCH=arm64 # or armhf or armel
+ARCH=arm64 # or armhf or armel or amd64 or i386
 IMGFILE=/var/tmp/debian-${SUITE}-${ARCH}.img
 LOOPDEV=`losetup -f`
 GIGABYTES=10 # total size in GB
@@ -12,7 +12,7 @@ NETWORK=systemd-networkd # or ifupdown, network-manager, none
 YOURHOSTNAME=arm-guest
 KERNEL_CMDLINE='net.ifnames=0 consoleblank=0 rw'
 GRUB_TIMEOUT=0
-MIRROR=http://deb.debian.org/debian
+MIRROR=
 INITUDEVPKG=systemd-sysv,udev # or sysvinit-core,udev
 KEYRINGPKG=debian-archive-keyring
 

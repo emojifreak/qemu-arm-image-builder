@@ -37,10 +37,21 @@ if [ "${ARCH}" = arm64 ]; then
     KERNELPKG=linux-image-arm64
     GRUBPKG=grub-efi-arm64
     GRUBTARGET=arm64-efi
-else
+elif [ "${ARCH}" = armhf -o  "${ARCH}" = armel ]; then
     KERNELPKG=linux-image-armmp-lpae:armhf
     GRUBPKG=grub-efi-arm
     GRUBTARGET=arm-efi
+elif [ "${ARCH}" = amd64 ]; then
+    KERNELPKG=linux-image-amd64
+    GRUBPKG=grub-efi-amd64
+    GRUBTARGET=x86_64-efi
+elif [ "${ARCH}" = i386 ]; then
+    KERNELPKG=linux-image-686-pae
+    GRUBPKG=grub-efi-ia32
+    GRUBTARGET=i386-efi
+else
+  echo "Unknown supported architecture ${ARCH} !"
+  exit 1
 fi
 
 if [ ${ARCH} = armel ]; then
@@ -162,9 +173,16 @@ losetup -d ${LOOPDEV}
 if [ $ARCH = arm64 ]; then
     OVMFCODE=/usr/share/AAVMF/AAVMF_CODE.fd
     OVMFDATA=/usr/share/AAVMF/AAVMF_VARS.fd
-else
+elif [ $ARCH = armhf -o $ARCH = armel ]; then 
     OVMFCODE=/usr/share/AAVMF/AAVMF32_CODE.fd
     OVMFDATA=/usr/share/AAVMF/AAVMF32_VARS.fd
+elif [ $ARCH = amd64 ]; then 
+    OVMFCODE=/usr/share/OVMF/OVMF_CODE.fd
+    OVMFDATA=/usr/share/OVMF/OVMF_VARS.fd
+elif [ $ARCH = i386 ]; then 
+  echo "Warning: UEFI roms for i386 is not yet available in Debian."
+else
+  echo "Unknown architecture and I don't know a suitable UEFI rom..."
 fi
 
 HOSTARCH=`dpkg --print-architecture`
@@ -214,12 +232,14 @@ else
     fi
 fi
 
-cat <<EOF
+if [ $ARCH = arm64 -o $ARCH = armhf -o $ARCH = armel ]; then 
+  cat <<EOF
 
 
 To start the guest run the following commands:
 cp $OVMFDATA /tmp/efivars.fd
 $QEMU -machine virt -nographic -net nic,model=virtio -net user -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0,id=rng-device0 -drive file=${IMGFILE},if=virtio,index=0,format=raw -drive if=pflash,format=raw,read-only,file=${OVMFCODE} -drive if=pflash,format=raw,file=/tmp/efivars.fd -m 1024 -cpu $CPU $KVM
 EOF
+fi
 
 exit 0
