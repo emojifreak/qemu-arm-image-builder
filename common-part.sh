@@ -241,7 +241,7 @@ if [ $ARCH = arm64 -o  $ARCH = armhf -o  $ARCH = armel ]; then
 
 elif [ $ARCH = amd64 ]; then
   QEMU=qemu-system-x86_64
-  MACHINE=q35
+  MACHINE="q35,smm=on -global driver=cfi.pflash01,property=secure,value=on"
   GRAPHICS=
   CPU="max"
   if [ $HOSTARCH = amd64 -a  -e /dev/kvm ]; then
@@ -250,7 +250,7 @@ elif [ $ARCH = amd64 ]; then
     KVM=
   fi
 elif [ $ARCH = i386 ]; then
-  MACHINE=q35
+  MACHINE="q35,smm=on -global driver=cfi.pflash01,property=secure,value=on"
   QEMU=qemu-system-i386
   GRAPHICS=
   CPU="max"
@@ -268,12 +268,13 @@ fi
 
 # For UEFI secure boot of an AArch64 hosts, use -machine virt,secure=on
 
+COPY_EFIVARS=`dirname ${IMGFILE}`/`basename ${IMGFILE}  .img`-efivars.fd
 cat <<EOF
 
 
 To start the guest run the following commands:
-cp $OVMFDATA /tmp/efivars.fd
-$QEMU $GRAPHICS -net nic,model=virtio -net user -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0,id=rng-device0 -drive file=${IMGFILE},if=virtio,index=0,format=raw -drive if=pflash,format=raw,read-only,file=${OVMFCODE} -drive if=pflash,format=raw,file=/tmp/efivars.fd -m 1024 -machine $MACHINE -cpu $CPU $KVM
+cp $OVMFDATA $COPY_EFIVARS
+$QEMU $GRAPHICS -net nic,model=virtio -net user -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0,id=rng-device0 -drive file=${IMGFILE},if=virtio,index=0,format=raw -drive if=pflash,format=raw,read-only,file=${OVMFCODE} -drive if=pflash,format=raw,file=$COPY_EFIVARS -m 1024 -cpu $CPU $KVM -machine $MACHINE
 EOF
 
 exit 0
