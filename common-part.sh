@@ -182,7 +182,8 @@ if [ $ARCH = arm64 ]; then
 elif [ $ARCH = armhf -o $ARCH = armel ]; then 
   OVMFCODE=/usr/share/AAVMF/AAVMF32_CODE.fd
   OVMFDATA=/usr/share/AAVMF/AAVMF32_VARS.fd
-elif [ $ARCH = amd64 ]; then 
+elif [ $ARCH = amd64 ]; then
+  # For UEFI secure boot, use OVMF_CODE_4M.ms.fd and OVMF_VARS_4M.ms.fd
   OVMFCODE=/usr/share/OVMF/OVMF_CODE.fd
   OVMFDATA=/usr/share/OVMF/OVMF_VARS.fd
 elif [ $ARCH = i386 ]; then 
@@ -264,6 +265,13 @@ elif [ $ARCH = i386 ]; then
     fi
   fi
 fi
+# For UEFI secure boot of Intel/AMD hosts, use
+# -machine q35,smm=on
+# -global driver=cfi.pflash01,property=secure,value=on
+# as explained at https://github.com/tianocore/edk2/blob/master/OvmfPkg/README
+
+# For UEFI secure boot of an AArch64 hosts, use -machine virt,secure=on
+
 cat <<EOF
 
 
