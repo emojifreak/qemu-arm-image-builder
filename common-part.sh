@@ -36,22 +36,18 @@ fi
 if [ "${ARCH}" = arm64 ]; then
     KERNELPKG=linux-image-arm64
     GRUBPKG=grub-efi-arm64
-    # for secure boot GRUBPKG="grub-efi-arm64 grub-efi-arm64-signed  shim-signed"
     GRUBTARGET=arm64-efi
 elif [ "${ARCH}" = armhf -o  "${ARCH}" = armel ]; then
     KERNELPKG=linux-image-armmp-lpae:armhf
     GRUBPKG=grub-efi-arm
-    # secure boot is currently unsupported
     GRUBTARGET=arm-efi
 elif [ "${ARCH}" = amd64 ]; then
     KERNELPKG=linux-image-amd64
     GRUBPKG=grub-efi-amd64
-    # for secure boot GRUBPKG="grub-efi-amd64 grub-efi-amd64-signed shim-signed"
     GRUBTARGET=x86_64-efi
 elif [ "${ARCH}" = i386 ]; then
     KERNELPKG=linux-image-686-pae
     GRUBPKG=grub-efi-ia32
-    # for secure boot GRUBPKG="grub-efi-ia32 grub-efi-ia32-signed shim-signed"
     GRUBTARGET=i386-efi
 else
   echo "Unknown supported architecture ${ARCH} !"
@@ -92,7 +88,7 @@ mount --bind /sys ${MOUNTPT}/sys
 mount --bind /proc ${MOUNTPT}/proc
 
 chroot ${MOUNTPT} apt-get -y update
-chroot ${MOUNTPT} apt-get -y --no-install-recommends --no-show-progress install ${GRUBPKG}
+chroot ${MOUNTPT} apt-get -y --install-recommends --no-show-progress install ${GRUBPKG}
 sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT=.*$/GRUB_CMDLINE_LINUX_DEFAULT="'"${KERNEL_CMDLINE}"\"/ ${MOUNTPT}/etc/default/grub
 sed -i 's/^GRUB_TIMEOUT=.*$/GRUB_TIMEOUT='"${GRUB_TIMEOUT}"/ ${MOUNTPT}/etc/default/grub
 #cat ${MOUNTPT}/etc/default/grub
