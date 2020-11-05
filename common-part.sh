@@ -180,12 +180,17 @@ elif [ $ARCH = armhf -o $ARCH = armel ]; then
   OVMFDATA=/usr/share/AAVMF/AAVMF32_VARS.fd
 elif [ $ARCH = amd64 ]; then
   # For UEFI secure boot, use OVMF_CODE_4M.ms.fd and OVMF_VARS_4M.ms.fd
-  OVMFCODE=/usr/share/OVMF/OVMF_CODE.fd
-  OVMFDATA=/usr/share/OVMF/OVMF_VARS.fd
+  if [ -r /usr/share/OVMF/OVMF_VARS_4M.ms.fd ]; then
+    OVMFCODE=/usr/share/OVMF/OVMF_CODE_4M.fd
+    OVMFDATA=/usr/share/OVMF/OVMF_VARS_4M.ms.fd
+  else
+    OVMFCODE=/usr/share/OVMF/OVMF_CODE.fd
+    OVMFDATA=/usr/share/OVMF/OVMF_VARS.ms.fd
+  fi    
 elif [ $ARCH = i386 ]; then 
   echo "Warning: UEFI roms for i386 is not yet available in Debian."
-  OVMFCODE=/usr/share/OVMF/OVMF32_CODE.fd
-  OVMFDATA=/usr/share/OVMF/OVMF32_VARS.fd
+  OVMFCODE=/usr/share/OVMF/OVMF32_CODE_4M.ms.fd
+  OVMFDATA=/usr/share/OVMF/OVMF32_VARS_4M.ms.fd
 else
   echo "Unknown architecture and I don't know a suitable UEFI rom..."
 fi
