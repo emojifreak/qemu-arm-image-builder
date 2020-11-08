@@ -279,7 +279,7 @@ cat <<EOF
 
 To start the guest run the following commands:
 cp $OVMFDATA $COPY_EFIVARS
-$QEMU $GRAPHICS -net nic,model=virtio -net user -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0,id=rng-device0 -drive file=${IMGFILE},if=virtio,index=0,format=raw -drive if=pflash,format=raw,read-only,file=${OVMFCODE} -drive if=pflash,format=raw,file=$COPY_EFIVARS -m 1024 -cpu $CPU $KVM -machine $MACHINE
+$QEMU $KVM $GRAPHICS -net nic,model=virtio -net user -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0,id=rng-device0 -drive file=${IMGFILE},if=virtio,index=0,format=raw -drive if=pflash,format=raw,unit=0,file=${OVMFCODE},readonly=on  -drive if=pflash,format=raw,unit=1,file=$COPY_EFIVARS -m 1024 -cpu $CPU -machine $MACHINE
 EOF
 
 exit 0
