@@ -14,3 +14,4 @@ To have a reasonable speed of emulation, KVM has to be enabled, if possible. The
 
 # Secure bootable images for i386/amd64
 By setting `ARCH=amd64` or `ARCH=i386` shell variable, the same scripts can produce secure-bootable QEMU images. As Debian [lacks i386 OVMF](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=842683) and [gives broken amd64 OVMF for secure boot](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=973783), I also include OVMF from Fedora 33. Working with OVMF files in Fedora 33 is much easier. QEMU should be started as `qemu-system-x86_64 -machine q35,smm=on -global driver=cfi.pflash01,property=secure,value=on  -drive if=pflash,format=raw,unit=0,file=OVMF_CODE.secboot.fd,readonly=on  -drive if=pflash,format=raw,unit=1,file=copy_of_OVMF_VARS.secboot.fd`
+When you want to build secure boot capable OVMF from the source, you can also use https://github.com/emojifreak/qemu-arm-image-builder/blob/main/OVMF-Fedora/my-ovmf-build.sh 
