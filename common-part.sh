@@ -107,11 +107,14 @@ if [ ${ROOTFS} = btrfs ]; then
 LABEL=ROOT / ${ROOTFS} rw,ssd,async,lazytime,discard,strictatime,autodefrag,nobarrier,commit=3600,compress-force=lzo 0 1
 LABEL=ESP /boot/efi vfat rw,async,lazytime,discard 0 2
 EOF
-elif [ ${ROOTFS} = btrfs ]; then
+elif [ ${ROOTFS} = ext4 ]; then
    cat >${MOUNTPT}/etc/fstab <<EOF
 LABEL=ROOT / ${ROOTFS} rw,async,lazytime,discard,strictatime,nobarrier,commit=3600,data=writeback 0 1
 LABEL=ESP /boot/efi vfat rw,async,lazytime,discard 0 2
 EOF
+else
+    echo "Unsupported filesystem $ROOTFS"
+    exit 0
 fi
 
 if [ "$SWAPGB" -gt 0 ]; then
