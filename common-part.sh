@@ -1,17 +1,11 @@
 #!/bin/sh
 
-if [ -z "${LOOPDEV}" -o ! -e "${LOOPDEV}" ]; then
-  echo "losetup -f failed to find an unused loop device, exiting ..."
-  echo "Consider rmmod -f loop; modprobe loop"
-  exit 1
-fi
-
-MOUNTPT=/tmp/mnt$$
 umount -qf ${LOOPDEV}p1
 umount -qf ${LOOPDEV}p2
 losetup -d ${LOOPDEV}
 rm -f ${IMGFILE}
-dd if=/dev/zero of=${IMGFILE} count=1 seek=`expr ${GIGABYTES} \* 1024 \* 2048`
+#dd if=/dev/zero of=${IMGFILE} count=1 seek=`expr ${GIGABYTES} \* 1024 \* 2048`
+qemu-img create -f raw -o preallocation=off -o nocow=off ${IMGFILE} ${GIGABYTES}G
 losetup -P ${LOOPDEV} ${IMGFILE}
 ESP=esp
 BOOTSIZE=100MiB
@@ -74,7 +68,7 @@ elif [ "${ARCH}" = ppc64 ]; then
     KERNELPKG=linux-image-powerpc64
     GRUBPKG=grub-ieee1275
     GRUBTARGET=powerpc-ieee1275
-    apt-get -y install debian-ports-archive-keyring
+    apt-get -q -y install debian-ports-archive-keyring
     KEYRINGPKG=debian-ports-archive-keyring,$KEYRINGPKG
     MIRROR=-
     MMCOMPONENTS=main
@@ -137,9 +131,9 @@ mount --bind /dev/pts ${MOUNTPT}/dev/pts
 mount --bind /sys ${MOUNTPT}/sys
 mount --bind /proc ${MOUNTPT}/proc
 
-chroot ${MOUNTPT} apt-get -y update
-chroot ${MOUNTPT} apt-get -y --install-recommends --no-show-progress install ${GRUBPKG}
-chroot ${MOUNTPT} apt-get -y --autoremove --no-show-progress purge os-prober
+chroot ${MOUNTPT} apt-get -q update
+chroot ${MOUNTPT} apt-get -q -y --install-recommends --no-show-progress install ${GRUBPKG}
+chroot ${MOUNTPT} apt-get -q -y --autoremove --no-show-progress purge os-prober
 sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT=.*$/GRUB_CMDLINE_LINUX_DEFAULT="'"${KERNEL_CMDLINE}"\"/ ${MOUNTPT}/etc/default/grub
 sed -i 's/^GRUB_TIMEOUT=.*$/GRUB_TIMEOUT='"${GRUB_TIMEOUT}"/ ${MOUNTPT}/etc/default/grub
 #cat ${MOUNTPT}/etc/default/grub
@@ -212,10 +206,10 @@ fi
 
 set -x
 if [ "$SUITE" != buster -a "$SUITE" != beowulf ]; then
-  chroot ${MOUNTPT} apt-get -y --purge --autoremove purge python2.7-minimal
+  chroot ${MOUNTPT} apt-get -q -y --purge --autoremove purge python2.7-minimal
 fi
 if [ $NETWORK = network-manager -o $NETWORK = systemd-networkd ]; then
-  chroot ${MOUNTPT} apt-get -y --purge --autoremove purge ifupdown
+  chroot ${MOUNTPT} apt-get -q -y --purge --autoremove purge ifupdown
   rm -f ${MOUNTPT}/etc/network/interfaces
 fi  
 set +x
@@ -228,12 +222,6 @@ if [ -w ${MOUNTPT}/etc/inittab ]; then
     echo 'C0:2345:respawn:/sbin/getty -8 --noclear --keep-baud console 115200,38400,9600' >>${MOUNTPT}/etc/inittab
 fi
 
-if [ $ARCH != ppc64el -a $ARCH != ppc64 ]; then
-  umount -f ${MOUNTPT}/boot/efi
-fi
-umount -f ${MOUNTPT}
-rm -rf ${MOUNTPT}
-losetup -d ${LOOPDEV}
 
 HOSTARCH=`dpkg --print-architecture`
 
@@ -360,5 +348,3 @@ EOF
 else 
   echo "Use virt-manager to start the made image."
 fi
-
-exit 0
