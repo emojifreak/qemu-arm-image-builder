@@ -1,13 +1,25 @@
 #!/bin/sh
 
+if [ -z "${LOOPDEV}" -o ! -e "${LOOPDEV}" ]; then
+  echo "losetup -f failed to find an unused loop device, exiting ..."
+  echo "Consider rmmod -f loop; modprobe loop"
+  exit 1
+fi
+
 MOUNTPT=/tmp/mnt$$
 umount -qf ${LOOPDEV}p1
 umount -qf ${LOOPDEV}p2
 losetup -d ${LOOPDEV}
 rm -f ${IMGFILE}
-dd if=/dev/zero of=${IMGFILE} count=1 seek=`expr ${GIGABYTES} \* 1024 \* 2048 - 1`
+dd if=/dev/zero of=${IMGFILE} count=1 seek=`expr ${GIGABYTES} \* 1024 \* 2048`
 losetup -P ${LOOPDEV} ${IMGFILE}
-parted -- ${LOOPDEV} mklabel gpt mkpart ESP fat32 0% 100MiB mkpart ROOT ${ROOTFS} 100MiB -${SWAPGB}GiB set 1 esp on
+ESP=esp
+BOOTSIZE=100MiB
+if [ $ARCH = ppc64 -o $ARCH = ppc64el ]; then
+  BOOTSIZE=9MiB
+  ESP=prep
+fi
+parted -- ${LOOPDEV} mklabel gpt mkpart ESP fat32 0% $BOOTSIZE mkpart ROOT ${ROOTFS} $BOOTSIZE -${SWAPGB}GiB set 1 $ESP on
 if [ ${SWAPGB} -gt 0 ]; then
     parted -- ${LOOPDEV} mkpart SWAP linux-swap -${SWAPGB}GiB 100%
 fi
@@ -17,7 +29,12 @@ while [ ! -b ${LOOPDEV}p2 ]; do
     sleep 1
 done
 
-mkfs.vfat -F 32 -n ESP ${LOOPDEV}p1
+if [ $ARCH != ppc64el -a $ARCH != ppc64 ]; then
+  mkfs.vfat -F 32 -n ESP ${LOOPDEV}p1
+else
+  dd bs=65536 if=/dev/zero of=${LOOPDEV}p1
+fi
+
 eval mkfs.${ROOTFS} -L ROOT ${LOOPDEV}p2
 if [ ${SWAPGB} -gt 0 ]; then
     mkswap -L SWAP ${LOOPDEV}p3
@@ -49,9 +66,29 @@ elif [ "${ARCH}" = i386 ]; then
     KERNELPKG=linux-image-686-pae
     GRUBPKG=grub-efi-ia32
     GRUBTARGET=i386-efi
+elif [ "${ARCH}" = ppc64el ]; then
+    KERNELPKG=linux-image-powerpc64le
+    GRUBPKG=grub-ieee1275
+    GRUBTARGET=powerpc-ieee1275
+elif [ "${ARCH}" = ppc64 ]; then
+    KERNELPKG=linux-image-powerpc64
+    GRUBPKG=grub-ieee1275
+    GRUBTARGET=powerpc-ieee1275
+    apt-get -y install debian-ports-archive-keyring
+    KEYRINGPKG=debian-ports-archive-keyring,$KEYRINGPKG
+    MIRROR=-
+    MMCOMPONENTS=main
+#elif [ "${ARCH}" = sparc64 ]; then
+#    KERNELPKG=linux-image-sparc64
+#    GRUBPKG=grub-ieee1275
+#    GRUBTARGET=sparc64-ieee1275
 else
   echo "Unknown supported architecture ${ARCH} !"
   exit 1
+fi
+
+if [ -z "$MMCOMPONENTS" ]; then
+  MMCOMPONENTS="main contrib non-free"
 fi
 
 if [ ${ARCH} = armel ]; then
@@ -71,10 +108,20 @@ else
 fi
 
 set -x
-mmdebstrap --architectures=$MMARCH --variant=$MMVARIANT --components="main contrib non-free" --include=${KEYRINGPKG},${INITUDEVPKG},${KERNELPKG},${NETPKG},initramfs-tools,kmod,e2fsprogs,btrfs-progs,locales,tzdata,apt-utils,whiptail,debconf-i18n,keyboard-configuration,console-setup ${SUITE} ${MOUNTPT} ${MIRROR}
+if [ $ARCH != ppc64 ]; then
+  mmdebstrap --architectures=$MMARCH --variant=$MMVARIANT --components="$MMCOMPONENTS" --include=${KEYRINGPKG},${INITUDEVPKG},${KERNELPKG},${NETPKG},initramfs-tools,kmod,e2fsprogs,btrfs-progs,locales,tzdata,apt-utils,whiptail,debconf-i18n,keyboard-configuration,console-setup ${SUITE} ${MOUNTPT} ${MIRROR}
+else
+  mmdebstrap --architectures=$MMARCH --variant=$MMVARIANT --components="$MMCOMPONENTS" --include=${KEYRINGPKG},${INITUDEVPKG},${KERNELPKG},${NETPKG},initramfs-tools,kmod,e2fsprogs,btrfs-progs,locales,tzdata,apt-utils,whiptail,debconf-i18n,keyboard-configuration,console-setup ${SUITE} ${MOUNTPT} ${MIRROR} <<EOF
+deb http://deb.debian.org/debian-ports sid main
+deb http://deb.debian.org/debian-ports unreleased main
+EOF
+fi
 
-mkdir -p ${MOUNTPT}/boot/efi
-mount -o async,discard,lazytime,noatime ${LOOPDEV}p1 ${MOUNTPT}/boot/efi
+if [ $ARCH != ppc64el -a $ARCH != ppc64 ]; then
+  mkdir -p ${MOUNTPT}/boot/efi
+  mount -o async,discard,lazytime,noatime ${LOOPDEV}p1 ${MOUNTPT}/boot/efi
+fi
+
 
 chroot ${MOUNTPT} dpkg-reconfigure locales
 chroot ${MOUNTPT} dpkg-reconfigure tzdata
@@ -83,20 +130,31 @@ chroot ${MOUNTPT} passwd root
 #chroot ${MOUNTPT} pam-auth-update
 set +x
 
+#touch ${MOUNTPT}${LOOPDEV}
+#mount --bind ${LOOPDEV} ${MOUNTPT}${LOOPDEV}
 mount --bind /dev ${MOUNTPT}/dev
+mount --bind /dev/pts ${MOUNTPT}/dev/pts
 mount --bind /sys ${MOUNTPT}/sys
 mount --bind /proc ${MOUNTPT}/proc
 
 chroot ${MOUNTPT} apt-get -y update
 chroot ${MOUNTPT} apt-get -y --install-recommends --no-show-progress install ${GRUBPKG}
+chroot ${MOUNTPT} apt-get -y --autoremove --no-show-progress purge os-prober
 sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT=.*$/GRUB_CMDLINE_LINUX_DEFAULT="'"${KERNEL_CMDLINE}"\"/ ${MOUNTPT}/etc/default/grub
 sed -i 's/^GRUB_TIMEOUT=.*$/GRUB_TIMEOUT='"${GRUB_TIMEOUT}"/ ${MOUNTPT}/etc/default/grub
 #cat ${MOUNTPT}/etc/default/grub
 chroot ${MOUNTPT} grub-mkconfig -o /boot/grub/grub.cfg
 # --force-extra-removable is necessary below!
-chroot ${MOUNTPT} grub-install --target=${GRUBTARGET} --force-extra-removable --no-nvram --no-floppy --modules="part_msdos part_gpt" --grub-mkdevicemap=/boot/grub/device.map ${LOOPDEV}
+if [ $ARCH != ppc64el -a $ARCH != ppc64 ]; then
+  chroot ${MOUNTPT} grub-install --target=${GRUBTARGET} --force-extra-removable --no-nvram --no-floppy --modules="part_msdos part_gpt" --grub-mkdevicemap=/boot/grub/device.map ${LOOPDEV}
+else
+  chroot ${MOUNTPT} grub-install --target=${GRUBTARGET} --no-nvram --no-floppy --modules="part_msdos part_gpt" --grub-mkdevicemap=/boot/grub/device.map ${LOOPDEV}p1
+fi
 
+umount -f ${MOUNTPT}/dev/pts
 umount -f ${MOUNTPT}/dev
+#umount -f ${MOUNTPT}${LOOPDEV}
+#rm -f ${MOUNTPT}${LOOPDEV}
 umount -f ${MOUNTPT}/sys
 umount -f ${MOUNTPT}/proc
 
@@ -105,16 +163,20 @@ echo ${YOURHOSTNAME} >${MOUNTPT}/etc/hostname
 if [ ${ROOTFS} = btrfs ]; then
    cat >${MOUNTPT}/etc/fstab <<EOF
 LABEL=ROOT / ${ROOTFS} rw,ssd,async,lazytime,discard,strictatime,autodefrag,nobarrier,commit=3600,compress-force=lzo 0 1
-LABEL=ESP /boot/efi vfat rw,async,lazytime,discard 0 2
 EOF
 elif [ ${ROOTFS} = ext4 ]; then
    cat >${MOUNTPT}/etc/fstab <<EOF
 LABEL=ROOT / ${ROOTFS} rw,async,lazytime,discard,strictatime,nobarrier,commit=3600,data=writeback 0 1
-LABEL=ESP /boot/efi vfat rw,async,lazytime,discard 0 2
 EOF
 else
     echo "Unsupported filesystem $ROOTFS"
     exit 0
+fi
+
+if [ $ARCH != ppc64el -a $ARCH != ppc64 ]; then
+   cat >>${MOUNTPT}/etc/fstab <<EOF
+LABEL=ESP /boot/efi vfat rw,async,lazytime,discard 0 2
+EOF
 fi
 
 if [ "$SWAPGB" -gt 0 ]; then
@@ -166,7 +228,9 @@ if [ -w ${MOUNTPT}/etc/inittab ]; then
     echo 'C0:2345:respawn:/sbin/getty -8 --noclear --keep-baud console 115200,38400,9600' >>${MOUNTPT}/etc/inittab
 fi
 
-umount -f ${MOUNTPT}/boot/efi
+if [ $ARCH != ppc64el -a $ARCH != ppc64 ]; then
+  umount -f ${MOUNTPT}/boot/efi
+fi
 umount -f ${MOUNTPT}
 rm -rf ${MOUNTPT}
 losetup -d ${LOOPDEV}
@@ -197,6 +261,8 @@ elif [ $ARCH = i386 ]; then
   echo "Warning: UEFI roms for i386 is not yet available in Debian."
   OVMFCODE=/usr/local/share/OVMF-Fedora/OVMF32_CODE.secboot.fd
   OVMFDATA=/usr/local/share/OVMF-Fedora/OVMF32_VARS.secboot.fd
+elif [ $ARCH = ppc64el -o $ARCH = ppc64 ]; then 
+  echo "UEFI roms are unnecessary."
 else
   echo "Unknown architecture and I don't know a suitable UEFI rom..."
 fi
@@ -282,12 +348,17 @@ fi
 # For UEFI secure boot of an AArch64 hosts, use -machine virt,secure=on
 
 COPY_EFIVARS=`dirname ${IMGFILE}`/`basename ${IMGFILE}  .img`-efivars.fd
-cat <<EOF
+
+if [ $ARCH != ppc64el -a $ARCH != ppc64 ]; then
+  cat <<EOF
 
 
 To start the guest run the following commands:
 cp $OVMFDATA $COPY_EFIVARS
 $QEMU $KVM $GRAPHICS -net nic,model=virtio -net user -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0,id=rng-device0 -drive if=virtio,file=${IMGFILE},index=0,format=raw,discard=unmap,detect-zeroes=unmap -drive if=pflash,format=raw,unit=0,file=${OVMFCODE},readonly=on  -drive if=pflash,format=raw,unit=1,file=$COPY_EFIVARS -m 1024 -cpu $CPU -machine $MACHINE
 EOF
+else 
+  echo "Use virt-manager to start the made image."
+fi
 
 exit 0
