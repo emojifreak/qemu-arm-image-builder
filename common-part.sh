@@ -13,7 +13,12 @@ if [ $ARCH = ppc64 -o $ARCH = ppc64el ]; then
   BOOTSIZE=9MiB
   ESP=prep
 fi
-parted -- ${LOOPDEV} mklabel gpt mkpart ESP fat32 0% $BOOTSIZE mkpart ROOT ${ROOTFS} $BOOTSIZE -${SWAPGB}GiB set 1 $ESP on
+if [ "$SWAPGB" -gt 0 ]; then
+  parted -- ${LOOPDEV} mklabel gpt mkpart ESP fat32 0% $BOOTSIZE mkpart ROOT ${ROOTFS} $BOOTSIZE -${SWAPGB}GiB set 1 $ESP on
+else 
+  parted -- ${LOOPDEV} mklabel gpt mkpart ESP fat32 0% $BOOTSIZE mkpart ROOT ${ROOTFS} $BOOTSIZE '100%' set 1 $ESP on
+fi
+
 if [ ${SWAPGB} -gt 0 ]; then
     parted -- ${LOOPDEV} mkpart SWAP linux-swap -${SWAPGB}GiB 100%
 fi
@@ -131,9 +136,9 @@ mount --bind /dev/pts ${MOUNTPT}/dev/pts
 mount --bind /sys ${MOUNTPT}/sys
 mount --bind /proc ${MOUNTPT}/proc
 
-chroot ${MOUNTPT} apt-get -q update
-chroot ${MOUNTPT} apt-get -q -y --install-recommends --no-show-progress install ${GRUBPKG}
-chroot ${MOUNTPT} apt-get -q -y --autoremove --no-show-progress purge os-prober
+chroot ${MOUNTPT} apt-get -qq update
+chroot ${MOUNTPT} apt-get -qq -y --install-recommends --no-show-progress install ${GRUBPKG}
+chroot ${MOUNTPT} apt-get -qq -y --autoremove --no-show-progress purge os-prober
 sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT=.*$/GRUB_CMDLINE_LINUX_DEFAULT="'"${KERNEL_CMDLINE}"\"/ ${MOUNTPT}/etc/default/grub
 sed -i 's/^GRUB_TIMEOUT=.*$/GRUB_TIMEOUT='"${GRUB_TIMEOUT}"/ ${MOUNTPT}/etc/default/grub
 #cat ${MOUNTPT}/etc/default/grub
@@ -160,7 +165,7 @@ LABEL=ROOT / ${ROOTFS} rw,ssd,async,lazytime,discard,strictatime,autodefrag,noba
 EOF
 elif [ ${ROOTFS} = ext4 ]; then
    cat >${MOUNTPT}/etc/fstab <<EOF
-LABEL=ROOT / ${ROOTFS} rw,async,lazytime,discard,strictatime,nobarrier,commit=3600,data=writeback 0 1
+LABEL=ROOT / ${ROOTFS} rw,async,lazytime,discard,strictatime,nobarrier,commit=3600 0 1
 EOF
 else
     echo "Unsupported filesystem $ROOTFS"
@@ -206,10 +211,10 @@ fi
 
 set -x
 if [ "$SUITE" != buster -a "$SUITE" != beowulf ]; then
-  chroot ${MOUNTPT} apt-get -q -y --purge --autoremove purge python2.7-minimal
+  chroot ${MOUNTPT} apt-get -qq -y --purge --autoremove purge python2.7-minimal
 fi
 if [ $NETWORK = network-manager -o $NETWORK = systemd-networkd ]; then
-  chroot ${MOUNTPT} apt-get -q -y --purge --autoremove purge ifupdown
+  chroot ${MOUNTPT} apt-get -qq -y --purge --autoremove purge ifupdown
   rm -f ${MOUNTPT}/etc/network/interfaces
 fi  
 set +x
