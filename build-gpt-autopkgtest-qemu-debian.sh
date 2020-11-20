@@ -139,7 +139,7 @@ EOF
 elif  [ $ARCH = i386 ]; then
   cat <<EOF
 You need UEFI roms (OVMF) for i386, which is not included in Debian's ovmf. With it, use
-autopkgtest-5.15 -B -u debci dpkg -- qemu --efi -q qemu-system-x86_64 --qemu-options "-machine q35" /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
+autopkgtest-5.15 -B -u debci dpkg -- qemu --efi -q qemu-system-i386 --qemu-options "-machine q35" /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
 EOF
 elif  [ $ARCH = arm64 ]; then
   cat <<EOF
