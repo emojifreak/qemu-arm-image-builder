@@ -160,7 +160,7 @@ EOF
 elif [ $ARCH = ppc64el -o $ARCH = ppc64 ]; then
   cat <<EOF
 You have to mannually apply the patch to autopkgtest-virt-qemu at
-https://bugs.debian.org/cgi-bin/bugreport.cgi?att=1;bug=973038;filename=simpler-patch.txt;msg=45
+https://bugs.debian.org/cgi-bin/bugreport.cgi?att=1;bug=926945;filename=autopkgtest-diff.txt;msg=64
 
 After that, use
 autopkgtest-5.15-patched -B -u debci bash -- qemu --efi -q qemu-system-ppc64le --timeout-reboot 300 /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
