@@ -124,6 +124,9 @@ if [ $ARCH != ppc64el -a $ARCH != ppc64 ]; then
 fi
 umount -f ${MOUNTPT}
 rm -rf ${MOUNTPT}
+if [ $ROOTFS = ext4 ]; then
+  tune2fs -e panic -o journal_data_writeback,nobarrier,discard ${LOOPDEV}p2
+fi
 losetup -d ${LOOPDEV}
 set -x
 rm -f "/var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2"
@@ -139,7 +142,7 @@ EOF
 elif  [ $ARCH = i386 ]; then
   cat <<EOF
 You need UEFI roms (OVMF) for i386, which is not included in Debian's ovmf. With it, use
-autopkgtest-5.15 -B -u debci dpkg -- qemu --efi -q qemu-system-i386 --qemu-options "-machine q35" /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
+autopkgtest-5.15 -B -u debci dpkg -- qemu --efi -q qemu-system-x86_64 --qemu-options "-machine q35" /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
 EOF
 elif  [ $ARCH = arm64 ]; then
   cat <<EOF
@@ -160,7 +163,7 @@ EOF
 elif [ $ARCH = ppc64el -o $ARCH = ppc64 ]; then
   cat <<EOF
 You have to mannually apply the patch to autopkgtest-virt-qemu at
-https://bugs.debian.org/cgi-bin/bugreport.cgi?att=1;bug=926945;filename=autopkgtest-diff.txt;msg=64
+https://bugs.debian.org/cgi-bin/bugreport.cgi?att=1;bug=973038;filename=simpler-patch.txt;msg=45
 
 After that, use
 autopkgtest-5.15-patched -B -u debci bash -- qemu --efi -q qemu-system-ppc64le --timeout-reboot 300 /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
