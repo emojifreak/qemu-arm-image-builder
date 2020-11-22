@@ -24,4 +24,6 @@ Experimental support is added. If you find any inconvenience, please report it a
 # build-gpt-autopkgtest-qemu-debian.sh
 Builds a autopkgtest QEMU testbed for amd64, i386, arm64, armhf, armel, and ppc64el architectures.
 The script also supports sysvinit-core as /sbin/init and btrfs root partition of the QEMU testbed.
-Devuan testbed can also be made.
+Devuan testbed can also be made. I see build-gpt-autopkgtest-qemu-debian.sh as a temporary alternative
+to autopkgtest-build-qemu until it includes support for armxx and ppc64el. Another QEMU bootable image
+builder for Debian is available as [qemu-sbuild-utils](https://www.kvr.at/posts/qemu-sbuild-utils-01-sbuild-with-qemu/)
