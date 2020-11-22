@@ -1,4 +1,4 @@
-**You are welcome to post a question to the github issue.**
+**You are welcome to post a question to the github issue.** Built VM images are available at http://153.240.174.134:64193/autopkgtest-VM/
 
 # qemu-arm-image-builder
 Shell scripts to build Linux images for QEMU ARM emulator
