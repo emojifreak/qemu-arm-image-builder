@@ -54,6 +54,11 @@ EOF
 echo "Acquire::Languages \"none\";" > ${MOUNTPT}/etc/apt/apt.conf.d/90nolanguages
 echo 'force-unsafe-io' > ${MOUNTPT}/etc/dpkg/dpkg.cfg.d/autopkgtest
 cp /dev/null ${MOUNTPT}/etc/environment
+cat >${MOUNTPT}/etc/resolv.conf <<EOF
+options edns0 rotate
+nameserver 8.8.8.8
+nameserver 1.1.1.1
+EOF
 echo 'APT::Periodic::Enable 0;' > ${MOUNTPT}/etc/apt/apt.conf.d/02periodic
 
 if echo "$INITUDEVPKG" | grep -q systemd; then
@@ -137,36 +142,36 @@ set +x
 if [ $ARCH = amd64 ]; then
   cat <<EOF
 You have to install ovmf and qemu-system-x86. Start the testbed as
-autopkgtest-5.15 -B -u debci dpkg -- qemu --efi -q qemu-system-x86_64 --qemu-options "-machine q35" /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
+autopkgtest -B -u debci dpkg -- qemu --efi -q qemu-system-x86_64 --qemu-options "-machine q35" /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
 EOF
 elif  [ $ARCH = i386 ]; then
   cat <<EOF
 You need UEFI roms (OVMF) for i386, which is not included in Debian's ovmf. With it, use
-autopkgtest-5.15 -B -u debci dpkg -- qemu --efi -q qemu-system-i386 --qemu-options "-machine q35" /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
+autopkgtest -B -u debci dpkg -- qemu --efi -q qemu-system-i386 --qemu-options "-machine q35" /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
 EOF
 elif  [ $ARCH = arm64 ]; then
   cat <<EOF
-You have to mannually apply the patch to autopkgtest-virt-qemu at 
-https://bugs.debian.org/cgi-bin/bugreport.cgi?att=1;bug=973038;filename=simpler-patch.txt;msg=45
+You may have to mannually apply the patch to autopkgtest-virt-qemu at 
+https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/97
 
 After that, use
-autopkgtest-5.15-patched -u debci -B dpkg -- qemu --efi  -q qemu-system-aarch64 --timeout-reboot 300 /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
+autopkgtest -u debci -B dpkg -- qemu --efi  -q qemu-system-aarch64 --qemu-options "-machine virt -cpu max" --timeout-reboot 300 /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
 EOF
 elif  [ $ARCH = armhf -o $ARCH = armel ]; then
   cat <<EOF
-You have to mannually apply the patch to autopkgtest-virt-qemu at 
-https://bugs.debian.org/cgi-bin/bugreport.cgi?att=1;bug=973038;filename=simpler-patch.txt;msg=45
+You may have to mannually apply the patch to autopkgtest-virt-qemu at 
+https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/97
 
 After that, use
-autopkgtest-5.15-patched -u debci -B dpkg -- qemu --efi  -q qemu-system-arm --timeout-reboot 300 /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
+autopkgtest -u debci -B dpkg -- qemu --efi  -q qemu-system-arm "-machine virt -cpu max" --timeout-reboot 300 /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
 EOF
-elif [ $ARCH = ppc64el -o $ARCH = ppc64 ]; then
+elif [ $ARCH = ppc64el  ]; then
   cat <<EOF
-You have to mannually apply the patch to autopkgtest-virt-qemu at
-https://bugs.debian.org/cgi-bin/bugreport.cgi?att=1;bug=926945;filename=autopkgtest-diff.txt;msg=64
+You may have to mannually apply the patch to autopkgtest-virt-qemu at 
+https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/97
 
 After that, use
-autopkgtest-5.15-patched -B -u debci bash -- qemu --efi -q qemu-system-ppc64le --timeout-reboot 300 /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
+autopkgtest -B -u debci bash -- qemu -q qemu-system-ppc64le --timeout-reboot 300 /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
 EOF
 else
   echo "Currently unknown architecture..."
