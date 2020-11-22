@@ -1,3 +1,5 @@
+**You are welcome to post a question to the github issue.**
+
 # qemu-arm-image-builder
 Shell scripts to build Linux images for QEMU ARM emulator
 
