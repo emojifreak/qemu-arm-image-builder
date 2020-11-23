@@ -6,7 +6,7 @@ IMGFILE=/var/tmp/autopkgtest-${SUITE}-${ARCH}.img
 GIGABYTES=25 # total size in GB
 SWAPGB=0 # swap size in GB
 ROOTFS=ext4 # btrfs or ext4
-MMVARIANT=apt # apt, required, important, or standard
+MMVARIANT=important # apt, required, important, or standard
 YOURHOSTNAME=host
 KERNEL_CMDLINE='net.ifnames=0 consoleblank=0 rw console=ttyS0 systemd.unified_cgroup_hierarchy=1'
 GRUB_TIMEOUT=0
