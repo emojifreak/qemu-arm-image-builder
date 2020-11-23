@@ -29,4 +29,5 @@ to autopkgtest-build-qemu until it includes support for armxx and ppc64el. Anoth
 builder for Debian is available as [qemu-sbuild-utils](https://www.kvr.at/posts/qemu-sbuild-utils-01-sbuild-with-qemu/).
 Autopkgtest-virt-qemu for arm and ppc VMs is posted at https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/97
 To use an ARM testbed, you need to install `qemu-system-arm`, `qemu-efi-arm`, `qemu-efi-aarch64`, `ipxe-qemu`.
-For a PowerPC, you need `qemu-system-ppc`. `MMVARIANT=apt` is OK for most packages, but it gives error to autopkgtest of systemd...
+For a PowerPC, you need `qemu-system-ppc`. `MMVARIANT=apt` is OK for most packages, but it gives error to autopkgtest of systemd,
+which is OK with `MMVARIANT=important`...
