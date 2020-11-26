@@ -14,7 +14,7 @@ MIRROR=http://deb.debian.org/debian/
 
 INITUDEVPKG=systemd-sysv,udev,libpam-systemd,libnss-systemd,dbus-user-session
 NETWORK=systemd-networkd # systemd-networkd or ifupdown, network-manager, none
-KEYRINGPKG=debian-keyring,debian-archive-keyring,openssh-server,eatmydata,gpg,dpkg-dev,python3-minimal
+KEYRINGPKG=debian-keyring,debian-archive-keyring,openssh-server,eatmydata,gpg,dpkg-dev,python3-minimal,apparmor-utils
 # You can added apparmor-utils,selinux-utils to KEYRINGPKG
 
 # For sysvinit as /sbin/init in Debian, use the following
@@ -113,7 +113,8 @@ else
   exit 1
 fi 
 
-chroot ${MOUNTPT} apt-get clean
+chroot ${MOUNTPT} apt-get -q -y --autoremove purge cron
+chroot ${MOUNTPT} apt-get -q clean
 chroot ${MOUNTPT} apt-get -q update
 
 if [ $ROOTFS = ext4 ]; then
