@@ -34,4 +34,3 @@ which is OK with `MMVARIANT=important`...
 
 # s390x, mips64el, and mipsel
 I do not know how to build a bootable image for s390x, mips64el, or mipsel. My impression is that there is no publicly available booting ROM for those architectures, similar to OVMF and AAVMF. **If you know how to do it, please tell me as a github issue here.**
-**
