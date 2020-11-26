@@ -9,7 +9,7 @@ qemu-img create -f raw -o preallocation=off -o nocow=off ${IMGFILE} ${GIGABYTES}
 losetup -P ${LOOPDEV} ${IMGFILE}
 ESP=esp
 BOOTSIZE=100MiB
-if [ $ARCH = ppc64 -o $ARCH = ppc64el ]; then
+if [ $ARCH = ppc64 -o $ARCH = ppc64el -o $ARCH = powerpc ]; then
   BOOTSIZE=9MiB
   ESP=prep
 fi
@@ -28,7 +28,7 @@ while [ ! -b ${LOOPDEV}p2 ]; do
     sleep 1
 done
 
-if [ $ARCH != ppc64el -a $ARCH != ppc64 ]; then
+if [ $ARCH != ppc64el -a $ARCH != ppc64 -a $ARCH != powerpc ]; then
   mkfs.vfat -F 32 -n ESP ${LOOPDEV}p1
 else
   dd bs=65536 if=/dev/zero of=${LOOPDEV}p1
@@ -77,6 +77,14 @@ elif [ "${ARCH}" = ppc64 ]; then
     KEYRINGPKG=debian-ports-archive-keyring,$KEYRINGPKG
     MIRROR=-
     MMCOMPONENTS=main
+elif [ "${ARCH}" = powerpc ]; then
+    KERNELPKG=linux-image-powerpc-smp
+    GRUBPKG=grub-ieee1275
+    GRUBTARGET=powerpc-ieee1275
+    apt-get -q -y install debian-ports-archive-keyring
+    KEYRINGPKG=debian-ports-archive-keyring,$KEYRINGPKG
+    MIRROR=-
+    MMCOMPONENTS=main
 #elif [ "${ARCH}" = sparc64 ]; then
 #    KERNELPKG=linux-image-sparc64
 #    GRUBPKG=grub-ieee1275
@@ -107,7 +115,7 @@ else
 fi
 
 set -x
-if [ $ARCH != ppc64 ]; then
+if [ $ARCH != ppc64 -a $ARCH != powerpc ]; then
   mmdebstrap --architectures=$MMARCH --variant=$MMVARIANT --components="$MMCOMPONENTS" --include=${KEYRINGPKG},${INITUDEVPKG},${KERNELPKG},${NETPKG},initramfs-tools,kmod,e2fsprogs,btrfs-progs,locales,tzdata,apt-utils,whiptail,debconf-i18n,keyboard-configuration,console-setup ${SUITE} ${MOUNTPT} ${MIRROR}
 else
   mmdebstrap --architectures=$MMARCH --variant=$MMVARIANT --components="$MMCOMPONENTS" --include=${KEYRINGPKG},${INITUDEVPKG},${KERNELPKG},${NETPKG},initramfs-tools,kmod,e2fsprogs,btrfs-progs,locales,tzdata,apt-utils,whiptail,debconf-i18n,keyboard-configuration,console-setup ${SUITE} ${MOUNTPT} ${MIRROR} <<EOF
@@ -116,7 +124,7 @@ deb http://deb.debian.org/debian-ports unreleased main
 EOF
 fi
 
-if [ $ARCH != ppc64el -a $ARCH != ppc64 ]; then
+if [ $ARCH != ppc64el -a $ARCH != ppc64 -a $ARCH != powerpc ]; then
   mkdir -p ${MOUNTPT}/boot/efi
   mount -o async,discard,lazytime,noatime ${LOOPDEV}p1 ${MOUNTPT}/boot/efi
 fi
@@ -144,7 +152,7 @@ sed -i 's/^GRUB_TIMEOUT=.*$/GRUB_TIMEOUT='"${GRUB_TIMEOUT}"/ ${MOUNTPT}/etc/defa
 #cat ${MOUNTPT}/etc/default/grub
 chroot ${MOUNTPT} grub-mkconfig -o /boot/grub/grub.cfg
 # --force-extra-removable is necessary below!
-if [ $ARCH != ppc64el -a $ARCH != ppc64 ]; then
+if [ $ARCH != ppc64el -a $ARCH != ppc64 -a $ARCH != powerpc ]; then
   chroot ${MOUNTPT} grub-install --target=${GRUBTARGET} --force-extra-removable --no-nvram --no-floppy --modules="part_msdos part_gpt" --grub-mkdevicemap=/boot/grub/device.map ${LOOPDEV}
 else
   chroot ${MOUNTPT} grub-install --target=${GRUBTARGET} --no-nvram --no-floppy --modules="part_msdos part_gpt" --grub-mkdevicemap=/boot/grub/device.map ${LOOPDEV}p1
@@ -172,7 +180,7 @@ else
     exit 0
 fi
 
-if [ $ARCH != ppc64el -a $ARCH != ppc64 ]; then
+if [ $ARCH != ppc64el -a $ARCH != ppc64 -a $ARCH != powerpc ]; then
    cat >>${MOUNTPT}/etc/fstab <<EOF
 LABEL=ESP /boot/efi vfat rw,async,lazytime,discard 0 2
 EOF
@@ -254,7 +262,7 @@ elif [ $ARCH = i386 ]; then
   echo "Warning: UEFI roms for i386 is not yet available in Debian."
   OVMFCODE=/usr/local/share/OVMF-Fedora/OVMF32_CODE.secboot.fd
   OVMFDATA=/usr/local/share/OVMF-Fedora/OVMF32_VARS.secboot.fd
-elif [ $ARCH = ppc64el -o $ARCH = ppc64 ]; then 
+elif [ $ARCH = ppc64el -o $ARCH = ppc64 -o $ARCH = powerpc ]; then 
   echo "UEFI roms are unnecessary."
 else
   echo "Unknown architecture and I don't know a suitable UEFI rom..."
@@ -342,7 +350,7 @@ fi
 
 COPY_EFIVARS=`dirname ${IMGFILE}`/`basename ${IMGFILE}  .img`-efivars.fd
 
-if [ $ARCH != ppc64el -a $ARCH != ppc64 ]; then
+if [ $ARCH != ppc64el -a $ARCH != ppc64 -a $ARCH != powerpc ]; then
   cat <<EOF
 
 
