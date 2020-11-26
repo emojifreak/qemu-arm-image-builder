@@ -31,3 +31,6 @@ Autopkgtest-virt-qemu for arm and ppc VMs is posted at https://salsa.debian.org/
 To use an ARM testbed, you need to install `qemu-system-arm`, `qemu-efi-arm`, `qemu-efi-aarch64`, `ipxe-qemu`.
 For a PowerPC, you need `qemu-system-ppc`. `MMVARIANT=apt` is OK for most packages, but it gives error to autopkgtest of systemd,
 which is OK with `MMVARIANT=important`...
+
+# s390x, mips64el, and mipsel
+I do not know how to build a bootable image for s390x, mips64el, or mipsel. My impression is that there is no publicly available booting ROM for those architectures, similar to OVMF and AAVMF. If you know how to do it, please tell me as a github issue here.
