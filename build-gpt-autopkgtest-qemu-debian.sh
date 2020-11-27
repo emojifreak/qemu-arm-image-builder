@@ -1,7 +1,7 @@
 #!/bin/sh
 
 SUITE=sid # buster or bullseye or sid
-ARCH=powerpc # ppc64el, ppc64, powerpc, arm64, armhf, armel, amd64, or i386
+ARCH=ppc64 # ppc64el, ppc64, powerpc, arm64, armhf, armel, amd64, or i386
 IMGFILE=/var/tmp/autopkgtest-${SUITE}-${ARCH}.img
 GIGABYTES=25 # total size in GB
 SWAPGB=0 # swap size in GB
@@ -56,7 +56,7 @@ EOF
 else
   cat << EOF >${MOUNTPT}/etc/apt/sources.list
 deb http://deb.debian.org/debian-ports/ sid main
-deb-src http://deb.debian.org/debian-ports/ sid main
+deb-src http://deb.debian.org/debian/ sid main
 deb http://deb.debian.org/debian-ports/ unreleased main
 deb-src http://deb.debian.org/debian-ports/ unreleased main
 EOF
@@ -185,6 +185,22 @@ https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/97
 
 After that, use
 autopkgtest -B -u debci bash -- qemu -q qemu-system-ppc64le --timeout-reboot 300 /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
+EOF
+elif [ $ARCH = ppc64  ]; then
+  cat <<EOF
+You may have to mannually apply the patch to autopkgtest-virt-qemu at 
+https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/97
+
+After that, use
+autopkgtest -B -u debci bash -- qemu --vm-arch ppc64 -q qemu-system-ppc64 --timeout-reboot 300 /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
+EOF
+elif [ $ARCH = powerpc  ]; then
+  cat <<EOF
+You may have to mannually apply the patch to autopkgtest-virt-qemu at 
+https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/97
+
+After that, use
+autopkgtest -B -u debci bash -- qemu --vm-arch powerpc -q qemu-system-ppc --timeout-reboot 300 /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
 EOF
 else
   echo "Currently unknown architecture..."
