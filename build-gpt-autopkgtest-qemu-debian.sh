@@ -14,7 +14,7 @@ MIRROR=http://deb.debian.org/debian/
 
 INITUDEVPKG=systemd-sysv,udev,libpam-systemd,libnss-systemd,dbus-user-session
 NETWORK=systemd-networkd # systemd-networkd or ifupdown, network-manager, none
-KEYRINGPKG=debian-keyring,debian-archive-keyring,openssh-server,eatmydata,gpg,dpkg-dev,python3-minimal,apparmor-utils
+KEYRINGPKG=debian-keyring,debian-archive-keyring,rng-tools5,openssh-server,eatmydata,gpg,dpkg-dev,python3-minimal,apparmor-utils
 # You can added apparmor-utils,selinux-utils to KEYRINGPKG
 
 # For sysvinit as /sbin/init in Debian, use the following
@@ -25,7 +25,7 @@ KEYRINGPKG=debian-keyring,debian-archive-keyring,openssh-server,eatmydata,gpg,dp
 #For Devuan, use the following
 #MIRROR=http://deb.devuan.org/merged/
 #SUITE=ceres # ceres, chimaera or beowulf
-#KEYRINGPKG=devuan-keyring,debian-keyring,openssh-server,eatmydata,gpg,dpkg-dev,python3-minimal
+#KEYRINGPKG=devuan-keyring,debian-keyring,rng-tools5,openssh-server,eatmydata,gpg,dpkg-dev,python3-minimal
 #INITUDEVPKG=sysvinit-core,eudev,libpam-elogind,lsb-base,lsb-release
 #NETWORK=ifupdown
 
@@ -124,6 +124,7 @@ else
   exit 1
 fi 
 
+echo '127.0.1.1  host' >> ${MOUNTPT}/etc/hosts
 chroot ${MOUNTPT} apt-get -q -y --autoremove purge cron anacron
 chroot ${MOUNTPT} apt-get -q clean
 chroot ${MOUNTPT} apt-get -q update
