@@ -18,8 +18,9 @@ To have a reasonable speed of emulation, KVM has to be enabled, if possible. The
 By setting `ARCH=amd64` or `ARCH=i386` shell variable, the same scripts can produce secure-bootable QEMU images. As Debian [lacks i386 OVMF](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=842683) and [gives amd64 OVMF inconvenient for autopkgtest-virt-qemu](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=973783), I also include OVMF from Fedora 33. QEMU can be started as `qemu-system-x86_64 -machine q35,smm=on -global driver=cfi.pflash01,property=secure,value=on  -drive if=pflash,format=raw,unit=0,file=OVMF_CODE.secboot.fd,readonly=on  -drive if=pflash,format=raw,unit=1,file=copy_of_OVMF_VARS.secboot.fd`
 When you want to build secure boot capable OVMF from the source, you can also use https://github.com/emojifreak/qemu-arm-image-builder/blob/main/OVMF-Fedora/my-ovmf-build.sh 
 
-# ppc64el, ppc64 and powerpc (32-bit big endian) architectures
-Experimental support is added. If you find any inconvenience, please report it as a github issue. So far I have seen no problem...
+# ppc64el, ppc64 and ~~powerpc (32-bit big endian)~~ architectures
+Experimental support is added. If you find any inconvenience, please report it as a github issue.
+(PowerPC (32-bit) image doesn't boot)
 
 # build-gpt-autopkgtest-qemu-debian.sh
 Builds a autopkgtest QEMU testbed for amd64, i386, arm64, armhf, armel, and ppc64el architectures.
