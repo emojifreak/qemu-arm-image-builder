@@ -1,12 +1,12 @@
 #!/bin/sh
 
 SUITE=sid # buster or bullseye or sid
-ARCH=ppc64el # ppc64el or arm64 or armhf or armel or amd64 or i386
+ARCH=powerpc # ppc64el, ppc64, powerpc, arm64, armhf, armel, amd64, or i386
 IMGFILE=/var/tmp/autopkgtest-${SUITE}-${ARCH}.img
 GIGABYTES=25 # total size in GB
 SWAPGB=0 # swap size in GB
 ROOTFS=ext4 # btrfs or ext4
-MMVARIANT=important # apt, required, important, or standard
+MMVARIANT=required # apt, required, important, or standard
 YOURHOSTNAME=host
 KERNEL_CMDLINE='net.ifnames=0 consoleblank=0 rw console=ttyS0 systemd.unified_cgroup_hierarchy=1'
 GRUB_TIMEOUT=0
@@ -18,13 +18,14 @@ KEYRINGPKG=debian-keyring,debian-archive-keyring,openssh-server,eatmydata,gpg,dp
 # You can added apparmor-utils,selinux-utils to KEYRINGPKG
 
 # For sysvinit as /sbin/init in Debian, use the following
+# MMCARIANT must be required or apt
 #INITUDEVPKG=sysvinit-core,udev,libpam-elogind,lsb-base,lsb-release
 #NETWORK=ifupdown
 
 #For Devuan, use the following
 #MIRROR=http://deb.devuan.org/merged/
 #SUITE=ceres # ceres, chimaera or beowulf
-#KEYRINGPKG=devuan-keyring,openssh-server,eatmydata,gpg,dpkg-dev,python3-minimal
+#KEYRINGPKG=devuan-keyring,debian-keyring,openssh-server,eatmydata,gpg,dpkg-dev,python3-minimal
 #INITUDEVPKG=sysvinit-core,eudev,libpam-elogind,lsb-base,lsb-release
 #NETWORK=ifupdown
 
@@ -47,10 +48,20 @@ chroot ${MOUNTPT} useradd --create-home --home-dir /home/user --uid 1000 user
 chroot ${MOUNTPT} passwd --delete user
 cat ${MOUNTPT}/etc/passwd
 
-cat << EOF >${MOUNTPT}/etc/apt/sources.list
+if [ $ARCH != ppc64 -a $ARCH != powerpc ]; then
+  cat << EOF >${MOUNTPT}/etc/apt/sources.list
 deb $MIRROR $SUITE main contrib non-free
 deb-src $MIRROR $SUITE main contrib non-free
 EOF
+else
+  cat << EOF >${MOUNTPT}/etc/apt/sources.list
+deb http://deb.debian.org/debian-ports/ sid main
+deb-src http://deb.debian.org/debian-ports/ sid main
+deb http://deb.debian.org/debian-ports/ unreleased main
+deb-src http://deb.debian.org/debian-ports/ unreleased main
+EOF
+fi
+
 echo "Acquire::Languages \"none\";" > ${MOUNTPT}/etc/apt/apt.conf.d/90nolanguages
 echo 'force-unsafe-io' > ${MOUNTPT}/etc/dpkg/dpkg.cfg.d/autopkgtest
 cp /dev/null ${MOUNTPT}/etc/environment
@@ -113,7 +124,7 @@ else
   exit 1
 fi 
 
-chroot ${MOUNTPT} apt-get -q -y --autoremove purge cron
+chroot ${MOUNTPT} apt-get -q -y --autoremove purge cron anacron
 chroot ${MOUNTPT} apt-get -q clean
 chroot ${MOUNTPT} apt-get -q update
 
