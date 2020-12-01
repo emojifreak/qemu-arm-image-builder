@@ -1,5 +1,13 @@
 #!/bin/sh
 
+if [ ${ROOTFS} = btrfs ]; then
+  if [ $ARCH = ppc64 -o $ARCH = ppc64el ]; then
+    echo "Due to the different page size 65536 of 64-bit PowerPC, ROOTFS is changed to ext4"
+    unset ROOTFS
+    ROOTFS=ext4
+  fi
+fi
+
 umount -qf ${LOOPDEV}p1
 umount -qf ${LOOPDEV}p2
 losetup -d ${LOOPDEV}
@@ -165,7 +173,6 @@ umount -f ${MOUNTPT}/dev
 umount -f ${MOUNTPT}/sys
 umount -f ${MOUNTPT}/proc
 
-cp /etc/resolv.conf /etc/environment ${MOUNTPT}/etc
 echo ${YOURHOSTNAME} >${MOUNTPT}/etc/hostname
 if [ ${ROOTFS} = btrfs ]; then
    cat >${MOUNTPT}/etc/fstab <<EOF

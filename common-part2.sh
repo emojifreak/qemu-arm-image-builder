@@ -6,6 +6,13 @@ if [ -w ${MOUNTPT}/etc/inittab ]; then
     echo 'C0:2345:respawn:/sbin/getty -8 --noclear --keep-baud console 115200,38400,9600' >>${MOUNTPT}/etc/inittab
 fi
 
+cp /etc/resolv.conf /etc/environment ${MOUNTPT}/etc
+cat >${MOUNTPT}/etc/resolv.conf <<EOF
+options edns0 rotate
+nameserver 8.8.8.8
+nameserver 1.1.1.1
+EOF
+
 
 HOSTARCH=`dpkg --print-architecture`
 
