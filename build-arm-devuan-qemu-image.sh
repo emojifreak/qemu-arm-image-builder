@@ -15,7 +15,7 @@ YOURHOSTNAME=arm-guest
 KERNEL_CMDLINE='net.ifnames=0 consoleblank=0 rw'
 GRUB_TIMEOUT=5
 
-apt-get -q -y --no-install-recommends install binfmt-support qemu-user-static qemu-efi-arm qemu-efi-aarch64 mmdebstrap qemu-system-arm
+apt-get -q -y --no-install-recommends install binfmt-support qemu-user-static qemu-efi-arm qemu-efi-aarch64 mmdebstrap qemu-system-arm ipxe-qemu
 
 MOUNTPT=/tmp/mnt$$
 LOOPDEV=`losetup -f`
@@ -26,6 +26,7 @@ if [ -z "${LOOPDEV}" -o ! -e "${LOOPDEV}" ]; then
 fi
 
 . ./common-part.sh
+. ./common-part2.sh
 
 if [ $ARCH != ppc64el -a $ARCH != ppc64 ]; then
   umount -f ${MOUNTPT}/boot/efi

@@ -1,12 +1,12 @@
 #!/bin/sh
 
 SUITE=bullseye # buster or bullseye or sid
-ARCH=powerpc # ppc64el or ppc64 or powerpc or arm64 or armhf or armel or amd64 or i386
+ARCH=arm64 # ppc64el or ppc64 or powerpc or arm64 or armhf or armel or amd64 or i386
 IMGFILE=/var/tmp/debian-${SUITE}-${ARCH}.img
 GIGABYTES=10 # total size in GB
 SWAPGB=1 # swap size in GB
 ROOTFS=btrfs # btrfs or ext4
-MMVARIANT=apt # apt or required, important, or standard
+MMVARIANT=important # apt or required, important, or standard
 NETWORK=systemd-networkd # systemd-networkd or ifupdown, network-manager, none
 YOURHOSTNAME=arm-guest
 KERNEL_CMDLINE='net.ifnames=0 consoleblank=0 rw'
@@ -15,7 +15,7 @@ MIRROR=
 INITUDEVPKG=systemd-sysv,udev # or sysvinit-core,udev
 KEYRINGPKG=debian-archive-keyring
 
-apt-get -q -y --no-install-recommends install binfmt-support qemu-user-static qemu-efi-arm qemu-efi-aarch64 mmdebstrap qemu-system-arm
+apt-get -q -y --no-install-recommends install binfmt-support qemu-user-static qemu-efi-arm qemu-efi-aarch64 mmdebstrap qemu-system-arm ipxe-qemu qemu-system-ppc qemu-system-data
 
 MOUNTPT=/tmp/mnt$$
 LOOPDEV=`losetup -f`
@@ -26,6 +26,7 @@ if [ -z "${LOOPDEV}" -o ! -e "${LOOPDEV}" ]; then
 fi
 
 . ./common-part.sh
+. ./common-part2.sh
 
 if [ $ARCH != ppc64el -a $ARCH != ppc64 ]; then
   umount -f ${MOUNTPT}/boot/efi
