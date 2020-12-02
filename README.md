@@ -1,4 +1,4 @@
-**You are welcome to post a question to the github issue.** Built VM images are available at http://153.240.174.134:64193/autopkgtest-VM/
+**You are welcome to post a question to the github issue.** Built VM images are available at http://153.240.174.134:64193/autopkgtest-VM-virtio-serial/
 
 # qemu-arm-image-builder
 Shell scripts to build Linux images for QEMU ARM emulator
@@ -28,7 +28,7 @@ The script also supports sysvinit-core as /sbin/init and btrfs root partition of
 Devuan testbed can also be made. I see build-gpt-autopkgtest-qemu-debian.sh as a temporary alternative
 to autopkgtest-build-qemu until it includes support for armxx and ppc64el. Another QEMU bootable image
 builder for Debian is available as [qemu-sbuild-utils](https://www.kvr.at/posts/qemu-sbuild-utils-01-sbuild-with-qemu/).
-Autopkgtest-virt-qemu for arm and ppc VMs is posted at https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/97
+Autopkgtest-virt-qemu for arm and ppc VMs is posted at https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/100
 To use an ARM testbed, you need to install `qemu-system-arm`, `qemu-efi-arm`, `qemu-efi-aarch64`, `ipxe-qemu`.
 For a PowerPC, you need `qemu-system-ppc`. `MMVARIANT=apt` is OK for most packages, but it gives error to autopkgtest of systemd,
 which is OK with `MMVARIANT=important`...
