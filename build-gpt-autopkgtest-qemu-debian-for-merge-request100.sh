@@ -175,7 +175,7 @@ EOF
 elif  [ $ARCH = arm64 ]; then
   cat <<EOF
 You may have to mannually apply the patch to autopkgtest-virt-qemu at 
-https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/97
+https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/100
 
 After that, use
 autopkgtest -u debci -B dpkg -- qemu --efi  -q qemu-system-aarch64 --qemu-options "-machine virt -cpu max" --timeout-reboot 300 /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
@@ -183,7 +183,7 @@ EOF
 elif  [ $ARCH = armhf -o $ARCH = armel ]; then
   cat <<EOF
 You may have to mannually apply the patch to autopkgtest-virt-qemu at 
-https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/97
+https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/100
 
 After that, use
 autopkgtest -u debci -B dpkg -- qemu --efi  -q qemu-system-arm "-machine virt -cpu max" --timeout-reboot 300 /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
@@ -191,7 +191,7 @@ EOF
 elif [ $ARCH = ppc64el  ]; then
   cat <<EOF
 You may have to mannually apply the patch to autopkgtest-virt-qemu at 
-https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/97
+https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/100
 
 After that, use
 autopkgtest -B -u debci bash -- qemu -q qemu-system-ppc64le --timeout-reboot 300 /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
@@ -199,18 +199,10 @@ EOF
 elif [ $ARCH = ppc64  ]; then
   cat <<EOF
 You may have to mannually apply the patch to autopkgtest-virt-qemu at 
-https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/97
-
-After that, use
-autopkgtest -B -u debci bash -- qemu --vm-arch ppc64 -q qemu-system-ppc64 --timeout-reboot 300 /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
-EOF
-elif [ $ARCH = powerpc  ]; then
-  cat <<EOF
-You may have to mannually apply the patch to autopkgtest-virt-qemu at 
 https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/100
 
 After that, use
-autopkgtest -B -u debci bash -- qemu --vm-arch powerpc -q qemu-system-ppc --timeout-reboot 300 /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
+autopkgtest -B -u debci bash -- qemu -q qemu-system-ppc64 --timeout-reboot 300 /var/tmp/autopkgtest-${SUITE}-${ARCH}.qcow2
 EOF
 else
   echo "Currently unknown architecture..."
