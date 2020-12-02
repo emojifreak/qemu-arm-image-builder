@@ -9,7 +9,7 @@ if [ $ARCH = i386 -o $ARCH = amd64 ]; then
 elif  [ $ARCH = arm64 -o $ARCH = armhf -o $ARCH = armel ]; then
   FIRST_TTY=ttyAMA0
   SECOND_TTY=hvc0
-elif  [ $ARCH = ppc64el -o $ARCH = ppc ]; then
+elif  [ $ARCH = ppc64el -o $ARCH = ppc64 ]; then
   FIRST_TTY=hvc0
   SECOND_TTY=hvc1
 else
