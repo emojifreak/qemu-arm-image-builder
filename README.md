@@ -1,6 +1,6 @@
 # Comments on the official Debian Installer (Alpha 3)
 A bootable qemu disk image can be built for **arm64** and **armhf** by [the d-i Alpha 3](https://www.debian.org/devel/debian-installer/News/2020/20201206). Some tricks are necessary as follows:
-* Arrow keys do not work on the serial console. `virt-manager` somehow make them work. See https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=976808
+* Arrow keys do not work on the serial console with `-display gtk` qemu option. `-nographic` qemu option or `virt-manager`somehow makes them work. See https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=976808
 * Graphical installation needs `console=tty1` in the kernel command line. See https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=976807#15
 
 
