@@ -1,7 +1,8 @@
 # Patches to the official autopkgtest-build-qemu
-Merge requests were submitted to the upstream as
-* https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/107
-* https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/108
+~~Merge requests were submitted to the upstream as~~
+* ~~https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/107~~
+* ~~https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/108~~
+https://salsa.debian.org/ci-team/autopkgtest now supports `arm64`, `armhf` and `ppc64el` architectures.
 
 # Comments on the official Debian Installer (Alpha 3)
 A bootable qemu disk image can be built for **arm64** and **armhf** by [the d-i Alpha 3](https://www.debian.org/devel/debian-installer/News/2020/20201206). Some tricks are necessary as follows:
