@@ -2,6 +2,7 @@
 ~~Merge requests were submitted to the upstream as~~
 * ~~https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/107~~
 * ~~https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/108~~
+
 https://salsa.debian.org/ci-team/autopkgtest now supports `arm64`, `armhf` and `ppc64el` architectures.
 
 # Comments on the official Debian Installer (Alpha 3)
