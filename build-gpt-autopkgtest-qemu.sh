@@ -128,7 +128,7 @@ else
 fi
 
 if [ $ARCH = ppc64 ]; then
-  QEMU='-q qemu-system-ppc64'
+  QEMU='-q qemu-system-ppc64 --qemu-options=-nodefaults'
 else
   QEMU=''
 fi
