@@ -234,3 +234,16 @@ if [ $NETWORK = network-manager -o $NETWORK = systemd-networkd ]; then
 fi  
 set +x
 
+if echo "$INITUDEVPKG" | grep -q sysvinit-core; then
+  egrep -v 'ttyS0|hvc0|ttyAMA0|powerfail|ctrlaltdel' ${MOUNTPT}/etc/inittab >${MOUNTPT}/etc/inittab.new
+  cat >>${MOUNTPT}/etc/inittab.new <<EOF
+S0:2345:respawn:/sbin/agetty -8 --noclear --noissue ttyS0 115200 vt100
+AMA0:2345:respawn:/sbin/agetty -8 --noclear --noissue ttyAMA0 115200 vt100
+hvc0:2345:respawn:/sbin/agetty -8 --noclear --noissue hvc0 115200 vt100
+ca:12345:ctrlaltdel:/sbin/shutdown -r now
+pf::powerwait:/sbin/shutdown -h -P +1 "Power supply lost!! Waiting the power for 1 minute."
+pn::powerfailnow:/sbin/shutdown -h -P now "Power supply lost!!"
+po::powerokwait:/sbin/shutdown -c "Power supply recovered."
+EOF
+  mv ${MOUNTPT}/etc/inittab.new ${MOUNTPT}/etc/inittab
+fi
