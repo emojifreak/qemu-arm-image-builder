@@ -25,7 +25,7 @@ KEYRINGPKG=debian-keyring,debian-archive-keyring,rng-tools,openssh-server,eatmyd
 #For Devuan, use the following
 #MIRROR=http://deb.devuan.org/merged/
 #SUITE=ceres # ceres, chimaera or beowulf
-#KEYRINGPKG=devuan-keyring,debian-keyring,rng-tools,openssh-server,eatmydata,gpg,dpkg-dev,python3-minimal
+#KEYRINGPKG=devuan-keyring,debian-keyring,rng-tools,openssh-server,eatmydata,gpg,dpkg-dev,python3-minimal,sudo
 #INITUDEVPKG=sysvinit-core,eudev,libpam-elogind,lsb-base,lsb-release
 #NETWORK=ifupdown
 
