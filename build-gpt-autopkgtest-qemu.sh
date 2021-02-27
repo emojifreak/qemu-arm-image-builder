@@ -84,20 +84,6 @@ chroot ${MOUNTPT} apt-get -y -q update
 chroot ${MOUNTPT} apt-get -y -q --purge --autoremove dist-upgrade
 chroot ${MOUNTPT} apt-get -y -q clean
 
-if echo "$INITUDEVPKG" | grep -q sysvinit-core; then
-  egrep -v 'ttyS0|hvc0|ttyAMA0|powerfail|ctrlaltdel' ${MOUNTPT}/etc/inittab >${MOUNTPT}/etc/inittab.new
-  cat >>${MOUNTPT}/etc/inittab.new <<EOF
-S0:2345:respawn:/sbin/agetty -8 --noclear --noissue ttyS0 115200 vt100
-AMA0:2345:respawn:/sbin/agetty -8 --noclear --noissue ttyAMA0 115200 vt100
-hvc0:2345:respawn:/sbin/agetty -8 --noclear --noissue hvc0 115200 vt100
-ca:12345:ctrlaltdel:/sbin/shutdown -r now
-pf::powerwait:/sbin/shutdown -P +1
-pn::powerfailnow:/sbin/shutdown -P now
-po::powerokwait:/sbin/shutdown -c "Power supply recovered."
-EOF
-  mv ${MOUNTPT}/etc/inittab.new ${MOUNTPT}/etc/inittab
-fi
-
 if [ $ROOTFS = ext4 ]; then
   e4defrag ${MOUNTPT}  >/dev/null
 elif [ $ROOTFS = btrfs ]; then
