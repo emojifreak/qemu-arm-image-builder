@@ -29,7 +29,7 @@ elif [ $ARCH = amd64 ]; then
   if [ -r /usr/local/share/OVMF-Fedora/OVMF_CODE.secboot.fd ]; then
     OVMFCODE=/usr/local/share/OVMF-Fedora/OVMF_CODE.secboot.fd
     OVMFDATA=/usr/local/share/OVMF-Fedora/OVMF_VARS.secboot.fd
-  elif [ -r /usr/share/OVMF/OVMF_VARS_4M.ms.fd ]; then
+  elif [ -r /usr/share/OVMF/OVMF_VARS_4M.fd ]; then
     OVMFCODE=/usr/share/OVMF/OVMF_CODE_4M.fd
     OVMFDATA=/usr/share/OVMF/OVMF_VARS_4M.fd
   else
@@ -38,8 +38,8 @@ elif [ $ARCH = amd64 ]; then
   fi    
 elif [ $ARCH = i386 ]; then 
   echo "Warning: UEFI roms for i386 is not yet available in Debian."
-  OVMFCODE=/usr/local/share/OVMF-Fedora/OVMF32_CODE.secboot.fd
-  OVMFDATA=/usr/local/share/OVMF-Fedora/OVMF32_VARS.secboot.fd
+  OVMFCODE=/usr/share/OVMF/OVMF32_CODE_4M.secboot.fd
+  OVMFDATA=/usr/share/OVMF/OVMF32_VARS_4M.fd
 elif [ $ARCH = ppc64el -o $ARCH = ppc64 -o $ARCH = powerpc ]; then 
   echo "UEFI roms are unnecessary."
 else
@@ -47,7 +47,7 @@ else
 fi
 
 if [ $ARCH = arm64 -o  $ARCH = armhf -o  $ARCH = armel ]; then
-  GRAPHICS="-display gtk"
+  GRAPHICS=""
   MACHINE=virt
   if [ $HOSTARCH = arm64 ]; then
     QEMU=qemu-system-aarch64
@@ -137,7 +137,7 @@ cp $OVMFDATA $COPY_EFIVARS
 $QEMU $KVM $GRAPHICS -net nic,model=virtio -net user -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0,id=rng-device0 -drive if=virtio,file=${IMGFILE},index=0,format=raw,discard=unmap,detect-zeroes=unmap -drive if=pflash,format=raw,unit=0,file=${OVMFCODE},readonly=on  -drive if=pflash,format=raw,unit=1,file=$COPY_EFIVARS -m 1024 -cpu $CPU -machine $MACHINE
 EOF
 else
-    GRAPHICS="-display gtk"
+    GRAPHICS=""
     if [ $ARCH = ppc64el ]; then
 	QEMUARCH=ppc64le
     elif [ $ARCH = powerpc ]; then
