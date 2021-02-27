@@ -2,20 +2,6 @@ cat >>${MOUNTPT}/root/.profile <<EOF
 echo "$NETCONFIG"
 EOF
 
-if echo "$INITUDEVPKG" | grep -q sysvinit-core; then
-  egrep -v 'ttyS0|hvc0|ttyAMA0|powerfail|ctrlaltdel' ${MOUNTPT}/etc/inittab >${MOUNTPT}/etc/inittab.new
-  cat >>${MOUNTPT}/etc/inittab.new <<EOF
-S0:2345:respawn:/sbin/agetty -8 --noclear --noissue ttyS0 115200 vt100
-AMA0:2345:respawn:/sbin/agetty -8 --noclear --noissue ttyAMA0 115200 vt100
-hvc0:2345:respawn:/sbin/agetty -8 --noclear --noissue hvc0 115200 vt100
-ca:12345:ctrlaltdel:/sbin/shutdown -r now
-pf::powerwait:/sbin/shutdown -h -P +1 "Power supply lost!!"
-pn::powerfailnow:/sbin/shutdown -h -P now
-po::powerokwait:/sbin/shutdown -c "Power supply recovered."
-EOF
-  mv ${MOUNTPT}/etc/inittab.new ${MOUNTPT}/etc/inittab
-fi
-
 cp /etc/resolv.conf /etc/environment ${MOUNTPT}/etc
 cat >${MOUNTPT}/etc/resolv.conf <<EOF
 options edns0 rotate
