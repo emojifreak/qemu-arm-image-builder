@@ -35,16 +35,18 @@ When you want to build secure boot capable OVMF from the source, you can also us
 Experimental support is added. If you find any inconvenience, please report it as a github issue.
 (PowerPC (32-bit) image doesn't boot)
 
-# build-gpt-autopkgtest-qemu-debian.sh
-Builds a autopkgtest QEMU testbed for amd64, i386, arm64, armhf, armel, and ppc64el architectures.
+# build-gpt-autopkgtest-qemu.sh
+Builds a autopkgtest QEMU testbed for amd64, i386, arm64, armhf, and ppc64el architectures.
 The script also supports sysvinit-core as /sbin/init and btrfs root partition of the QEMU testbed.
-Devuan testbed can also be made. I see build-gpt-autopkgtest-qemu-debian.sh as a temporary alternative
-to autopkgtest-build-qemu until it includes support for armxx and ppc64el. Another QEMU bootable image
+Devuan testbed can also be made. I see build-gpt-autopkgtest-qemu.sh as a temporary alternative
+to autopkgtest-build-qemu until it includes support for sysvinit as /sbin/init. Another QEMU bootable image
 builder for Debian is available as [qemu-sbuild-utils](https://www.kvr.at/posts/qemu-sbuild-utils-01-sbuild-with-qemu/).
-Autopkgtest-virt-qemu for arm and ppc VMs is posted at https://salsa.debian.org/ci-team/autopkgtest/-/merge_requests/100
 To use an ARM testbed, you need to install `qemu-system-arm`, `qemu-efi-arm`, `qemu-efi-aarch64`, `ipxe-qemu`.
 For a PowerPC, you need `qemu-system-ppc`. `MMVARIANT=apt` is OK for most packages, but it gives error to autopkgtest of systemd,
 which is OK with `MMVARIANT=important`...
+
+# DQIB
+Another project similar in the spirit is [Debian Quick Image Baker](https://gitlab.com/giomasce/dqib/blob/master/README.md).
 
 # s390x, mips64el, and mipsel
 I do not know how to build a bootable image for s390x, mips64el, or mipsel. My impression is that there is no publicly available booting ROM for those architectures, similar to OVMF and AAVMF. **If you know how to do it, please tell me as a github issue here.**
