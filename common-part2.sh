@@ -3,7 +3,8 @@ echo "$NETCONFIG"
 EOF
 
 if [ -w ${MOUNTPT}/etc/inittab ]; then
-    echo 'C0:2345:respawn:/sbin/getty -8 --noclear --keep-baud console 115200,38400,9600' >>${MOUNTPT}/etc/inittab
+    echo 'AMA0:2345:respawn:/sbin/getty -8 --noclear --keep-baud ttyAMA0 115200,38400,9600' >>${MOUNTPT}/etc/inittab
+    echo 'hvc0:2345:respawn:/sbin/getty -8 --noclear --keep-baud hvc0 115200,38400,9600' >>${MOUNTPT}/etc/inittab
 fi
 
 cp /etc/resolv.conf /etc/environment ${MOUNTPT}/etc
