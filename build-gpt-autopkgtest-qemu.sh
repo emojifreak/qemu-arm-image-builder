@@ -56,7 +56,7 @@ for u in user debci; do
   chroot ${MOUNTPT} passwd --delete $u
 done
 echo host > ${MOUNTPT}/etc/hostname
-echo '127.0.1.1\thost' >> /etc/hosts
+echo '127.0.1.1\thost' >> ${MOUNTPT}/etc/hosts
 cat ${MOUNTPT}/etc/passwd
 
 AUTOPKGTEST_KEEP_APT_SOURCES=1 AUTOPKGTEST_BUILD_QEMU=1 sh setup-testbed "$MOUNTPT"
