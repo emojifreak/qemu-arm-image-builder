@@ -12,7 +12,6 @@ done |
     sed 's/^Package: //' |
     sort |
     uniq >/tmp/pkglist-devuan.txt
-exit 0
 
 if [ ! -r /var/tmp/autopkgtest-ceres-amd64.qcow2 ]; then
     echo "Make autopkgtest-ceres-amd64.qcow2 by https://github.com/emojifreak/qemu-arm-image-builder."
