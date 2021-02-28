@@ -1,7 +1,7 @@
 #!/bin/sh
 
 SUITE=sid # buster or bullseye or sid
-ARCH=ppc64el # ppc64el, ppc64, powerpc, arm64, armhf, amd64, or i386
+ARCH=amd64 # ppc64el, ppc64, powerpc, arm64, armhf, amd64, or i386
 
 GIGABYTES=25 # total size in GB
 SWAPGB=0 # swap size in GB
