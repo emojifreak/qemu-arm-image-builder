@@ -8,7 +8,7 @@ SWAPGB=0 # swap size in GB
 ROOTFS=ext4 # btrfs or ext4
 MMVARIANT=important # apt, required, important, or standard
 YOURHOSTNAME=host
-KERNEL_CMDLINE="net.ifnames=0 consoleblank=0 rw console=hvc0 console=ttyS0 console=ttyAMA0"
+KERNEL_CMDLINE="net.ifnames=0 consoleblank=0 rw console=hvc0 console=ttyS0 console=ttyAMA0 console=tty0"
 GRUB_TIMEOUT=0
 MIRROR=http://deb.debian.org/debian/
 
