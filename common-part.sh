@@ -176,7 +176,7 @@ umount -f ${MOUNTPT}/proc
 echo ${YOURHOSTNAME} >${MOUNTPT}/etc/hostname
 if [ ${ROOTFS} = btrfs ]; then
    cat >${MOUNTPT}/etc/fstab <<EOF
-LABEL=ROOT / ${ROOTFS} rw,ssd,async,lazytime,discard,strictatime,autodefrag,nobarrier,commit=3600,compress-force=lzo 0 1
+LABEL=ROOT / ${ROOTFS} rw,ssd,async,lazytime,discard=async,strictatime,autodefrag,nobarrier,commit=3600,compress-force=lzo 0 1
 EOF
 elif [ ${ROOTFS} = ext4 ]; then
    cat >${MOUNTPT}/etc/fstab <<EOF
