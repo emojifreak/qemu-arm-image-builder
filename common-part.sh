@@ -174,6 +174,7 @@ umount -f ${MOUNTPT}/sys
 umount -f ${MOUNTPT}/proc
 
 echo ${YOURHOSTNAME} >${MOUNTPT}/etc/hostname
+echo "127.0.1.1\t${YOURHOSTNAME}" >> ${MOUNTPT}/etc/hosts
 if [ ${ROOTFS} = btrfs ]; then
    cat >${MOUNTPT}/etc/fstab <<EOF
 LABEL=ROOT / ${ROOTFS} rw,ssd,async,lazytime,discard=async,strictatime,autodefrag,nobarrier,commit=3600,compress-force=lzo 0 1
