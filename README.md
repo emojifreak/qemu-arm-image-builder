@@ -1,7 +1,7 @@
 # build-gpt-autopkgtest-qemu.sh
 * For building autopkgtest qemu testbeds of Debian *non-x86* architectures, use the latest `autopkgtest-build-qemu` at https://salsa.debian.org/ci-team/autopkgtest
 * For building qemu testbeds of *Devuan*, see the instruction at http://dev1galaxy.org/viewtopic.php?id=4320
-* http://dev1galaxy.org/viewtopic.php?id=4320 has become less needed now.
+* build-gpt-autopkgtest-qemu.sh has become less needed now.
 
 Builds a autopkgtest QEMU testbed for amd64, i386, arm64, armhf, and ppc64el architectures.
 The script also supports sysvinit-core as /sbin/init and btrfs root partition of the QEMU testbed.
