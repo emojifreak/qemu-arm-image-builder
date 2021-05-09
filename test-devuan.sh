@@ -14,9 +14,7 @@ done |
     uniq >/tmp/pkglist-devuan.txt
 
 if [ ! -r /var/tmp/autopkgtest-ceres-amd64.qcow2 ]; then
-    echo "Make autopkgtest-ceres-amd64.qcow2 by https://github.com/emojifreak/qemu-arm-image-builder."
-    echo "Also install autopkgtest and qemu-system-x86 from chimaera/ceres."
-    echo "Note that /usr/bin/autopkgtest-build-qemu doesn't work at all for Devuan."
+    echo "Build a Devuan qemu testbed according to http://dev1galaxy.org/viewtopic.php?id=4320"
     exit 1
 fi
 
