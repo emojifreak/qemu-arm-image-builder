@@ -4,7 +4,7 @@ LXC is a container running a Linux guest on a Linux host. To install and use an 
 
 1. `apt-get --install-recommends install binfmt-support qemu-user-static lxc`
 2. `lxc-create -n debian-buster-arm64 -t download -- -d debian -r buster -a arm64`
-3. `lxc-execute -n debian-buster-arm64 -- passwd -d root
+3. `lxc-execute -n debian-buster-arm64 -- passwd -d root`
 4. `lxc-start -F -n debian-buster-arm64`
 
 ## [QEMU](https://www.qemu.org/)
