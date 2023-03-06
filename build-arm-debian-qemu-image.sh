@@ -15,7 +15,9 @@ MIRROR=
 INITUDEVPKG=systemd-sysv,udev # or sysvinit-core,udev
 KEYRINGPKG=debian-archive-keyring
 
-apt-get -q -y --no-install-recommends install binfmt-support qemu-user-static qemu-efi-arm qemu-efi-aarch64 mmdebstrap qemu-system-arm ipxe-qemu qemu-system-ppc qemu-system-data
+apt-get update
+apt-get upgrade -y
+apt-get -q -y --no-install-recommends install arch-test binfmt-support qemu-user-static qemu-efi-arm qemu-efi-aarch64 mmdebstrap qemu-system-arm ipxe-qemu qemu-system-ppc qemu-system-data
 
 MOUNTPT=/tmp/mnt$$
 LOOPDEV=`losetup -f`
